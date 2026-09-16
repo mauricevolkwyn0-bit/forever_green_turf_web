@@ -26,7 +26,7 @@ const SERVICES = [
     id: "brick",
     icon: Layers,
     title: "Brick Paving",
-    desc: "Handcrafted patterns in clay and concrete brick — for patios, paths, courtyards, and pool surrounds that age beautifully.",
+    desc: "Handcrafted patterns in clay and concrete brick for patios, paths, courtyards, and pool surrounds that age beautifully.",
     img: "https://images.unsplash.com/photo-1652096069725-b6ff1a3837d9?w=600&h=400&fit=crop&auto=format",
     tag: "paving",
   },
@@ -34,7 +34,7 @@ const SERVICES = [
     id: "driveway",
     icon: Hammer,
     title: "Driveway Paving",
-    desc: "Durable, precision-laid driveways using interlocking pavers, exposed aggregate, or cobble — engineered for heavy load and kerb appeal.",
+    desc: "Durable, precision-laid driveways using interlocking pavers, exposed aggregate, or cobble engineered for heavy load and kerb appeal.",
     img: "https://images.unsplash.com/photo-1621701845350-8518defeaec7?w=600&h=400&fit=crop&auto=format",
     tag: "paving",
   },
@@ -42,7 +42,7 @@ const SERVICES = [
     id: "garden",
     icon: Flower2,
     title: "Garden Design",
-    desc: "From concept sketch to planted finish — we design and install indigenous and exotic garden beds, retaining walls, irrigation, and lighting.",
+    desc: "From concept sketch to planted finish we design and install indigenous and exotic garden beds, retaining walls, irrigation, and lighting.",
     img: "https://images.unsplash.com/photo-1762461838534-ca26dfa134a8?w=600&h=400&fit=crop&auto=format",
     tag: "gardens",
   },
@@ -51,7 +51,7 @@ const SERVICES = [
 const STEPS = [
   { num: "01", title: "Free Consultation", desc: "We visit your property, assess the space, and discuss your vision and budget." },
   { num: "02", title: "Custom Proposal",   desc: "You receive a detailed plan with material samples, timeline, and fixed-price quote." },
-  { num: "03", title: "Installation",      desc: "Our crew arrives on schedule and works cleanly to the agreed spec — no surprises." },
+  { num: "03", title: "Installation",      desc: "Our crew arrives on schedule and works cleanly to the agreed spec, no surprises." },
   { num: "04", title: "Final Walkthrough", desc: "We inspect together, address anything outstanding, and hand over a care guide." },
 ];
 
@@ -87,7 +87,7 @@ function Hero() {
           </h1>
 
           <p style={{ fontFamily: FONT_BODY, fontSize: 17, color: "rgba(255,255,255,0.72)", lineHeight: 1.7, maxWidth: 420, marginBottom: 40 }}>
-            Premium lawn installation and brick paving for homes and developments across Cape Town and nearby areas — built by a team that takes pride in every square metre.
+            Premium lawn installation and brick paving for homes and developments across Cape Town and nearby areas, built by a team that takes pride in every square metre.
           </p>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -191,7 +191,7 @@ function Services() {
             </h2>
           </div>
           <p style={{ color: STONE, lineHeight: 1.7, fontSize: 16, maxWidth: 460 }}>
-            Whether you need a new lawn, a paved driveway, or a complete garden transformation, we bring the same level of care and craft to every project — regardless of size.
+            Whether you need a new lawn, a paved driveway, or a complete garden transformation, we bring the same level of care and craft to every project, regardless of size.
           </p>
         </div>
 

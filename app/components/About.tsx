@@ -39,14 +39,14 @@ export default function About() {
             Built on craft.<br /><em style={{ fontStyle: "italic" }}>Grounded in quality.</em>
           </h2>
           <p style={{ color: STONE, lineHeight: 1.75, fontSize: 15, marginBottom: 16 }}>
-            {BRAND} was founded in 2012 by a landscaper who&apos;d spent a decade watching poor workmanship ruin good-intentioned outdoor spaces. The company exists because great outdoor installation isn&apos;t about speed — it&apos;s about preparation, patience, and getting the details right.
+            {BRAND} was founded in 2012 by a landscaper who&apos;d spent a decade watching poor workmanship ruin good-intentioned outdoor spaces. The company exists because great outdoor installation isn&apos;t about speed, it&apos;s about preparation, patience, and getting the details right.
           </p>
           <p style={{ color: STONE, lineHeight: 1.75, fontSize: 15, marginBottom: 36 }}>
             Today we&apos;re a team of 18, working across Cape Town and nearby areas. Every project is managed by a senior installer, not subcontracted out.
           </p>
 
           {[
-            { icon: Shield, text: "PIRB and NHBRC registered — every job covered" },
+            { icon: Shield, text: "PIRB and NHBRC registered, every job covered" },
             { icon: Users,  text: "Full-time employed team, no day-labour subcontracting" },
             { icon: Award,  text: "5-year workmanship guarantee on all installations" },
             { icon: Clock,  text: "Project timelines given in writing and adhered to" },

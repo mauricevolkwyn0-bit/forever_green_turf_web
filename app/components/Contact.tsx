@@ -29,7 +29,7 @@ export default function Contact() {
             Request a<br /><em style={{ fontStyle: "italic" }}>Free Quote.</em>
           </h2>
           <p style={{ color: STONE, lineHeight: 1.75, fontSize: 15, marginBottom: 36 }}>
-            Tell us about your project and we&apos;ll get back to you within one business day to schedule a site visit — no obligation.
+            Tell us about your project and we&apos;ll get back to you within one business day to schedule a site visit no obligation.
           </p>
 
           {[

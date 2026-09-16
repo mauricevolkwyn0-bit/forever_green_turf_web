@@ -40,7 +40,7 @@ const SECTIONS = [
   {
     heading: "5. Cookies and Automated Tracking",
     body: [
-      "This website does not currently use analytics, advertising, or tracking cookies. If that changes in the future, this policy will be updated accordingly and, where required, we will ask for your consent.",
+      "This website does not currently use analytics, advertising, or tracking cookies. If that changes in the future, this policy will be updated accordingly and, where required, we will ask for your consent. See our Cookie Policy (/cookies) for full details and to manage your preferences.",
     ],
   },
   {

@@ -2,17 +2,27 @@
 
 import Link from "next/link";
 import { Phone, Mail, MapPin, Leaf } from "lucide-react";
+import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { FOREST, GRASS, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
+import { useCookieConsent } from "./CookieConsentContext";
 
 const COMPANY_LINKS: { label: string; href?: string }[] = [
   { label: "About Us", href: "/about" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "How It Works", href: "/#process" },
-  { label: "Testimonials" },
+  { label: "Process", href: "/#process" },
   { label: "Privacy Policy", href: "/privacy" },
+  { label: "Cookie Policy", href: "/cookies" },
+];
+
+const SOCIALS = [
+  { label: "Facebook", icon: FaFacebook },
+  { label: "Instagram", icon: FaInstagram },
+  { label: "LinkedIn", icon: FaLinkedin },
 ];
 
 export default function Footer() {
+  const { open: openCookieSettings } = useCookieConsent();
+
   return (
     <footer style={{ background: "#111910", color: "rgba(255,255,255,0.7)", fontFamily: FONT_BODY }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "64px 24px 40px" }}>
@@ -29,8 +39,16 @@ export default function Footer() {
               Premium lawn installation and paving across Cape Town and nearby areas. Built by hand. Guaranteed by name.
             </p>
             <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-              {["FB", "IG", "WA"].map(s => (
-                <div key={s} style={{ width: 32, height: 32, borderRadius: 4, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>{s}</div>
+              {SOCIALS.map(({ label, icon: Icon }) => (
+                <button
+                  key={label}
+                  aria-label={label}
+                  style={{ width: 32, height: 32, borderRadius: 4, background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.6)", transition: "color 0.2s, background 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = GRASS; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.6)"; e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
+                >
+                  <Icon size={15} />
+                </button>
               ))}
             </div>
           </div>
@@ -38,7 +56,7 @@ export default function Footer() {
           {/* Services */}
           <div>
             <div style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Services</div>
-            {["Lawn Installation", "Brick Paving", "Driveway Paving", "Garden Design", "Irrigation"].map(s => (
+            {["Lawn Installation", "Brick Paving", "Driveway Paving", "Garden Design"].map(s => (
               <div key={s} style={{ marginBottom: 10, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.55)", transition: "color 0.2s" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
                 onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
@@ -86,7 +104,15 @@ export default function Footer() {
 
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© {new Date().getFullYear()} {BRAND} (Pty) Ltd. All rights reserved.</span>
-          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>PIRB Reg. · NHBRC Member · Workmanship Guaranteed</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <button
+              onClick={() => openCookieSettings(true)}
+              style={{ background: "none", border: "none", padding: 0, fontSize: 12, color: "rgba(255,255,255,0.3)", cursor: "pointer", textDecoration: "underline", fontFamily: FONT_BODY }}
+            >
+              Cookie Settings
+            </button>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>PIRB Reg. · NHBRC Member · Workmanship Guaranteed</span>
+          </div>
         </div>
       </div>
       <style>{`
