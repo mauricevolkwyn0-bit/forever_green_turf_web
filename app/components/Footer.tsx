@@ -1,0 +1,98 @@
+"use client";
+
+import Link from "next/link";
+import { Phone, Mail, MapPin, Leaf } from "lucide-react";
+import { FOREST, GRASS, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
+
+const COMPANY_LINKS: { label: string; href?: string }[] = [
+  { label: "About Us", href: "/about" },
+  { label: "Portfolio", href: "/portfolio" },
+  { label: "How It Works", href: "/#process" },
+  { label: "Testimonials" },
+  { label: "Privacy Policy", href: "/privacy" },
+];
+
+export default function Footer() {
+  return (
+    <footer style={{ background: "#111910", color: "rgba(255,255,255,0.7)", fontFamily: FONT_BODY }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "64px 24px 40px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 48, marginBottom: 48 }} className="footer-grid">
+          {/* Brand */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 6, background: FOREST, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Leaf size={16} color={GRASS} />
+              </div>
+              <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: "#fff" }}>{BRAND}</span>
+            </div>
+            <p style={{ fontSize: 13, lineHeight: 1.7, maxWidth: 240, color: "rgba(255,255,255,0.5)" }}>
+              Premium lawn installation and paving across Cape Town and nearby areas. Built by hand. Guaranteed by name.
+            </p>
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              {["FB", "IG", "WA"].map(s => (
+                <div key={s} style={{ width: 32, height: 32, borderRadius: 4, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>{s}</div>
+              ))}
+            </div>
+          </div>
+
+          {/* Services */}
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Services</div>
+            {["Lawn Installation", "Brick Paving", "Driveway Paving", "Garden Design", "Irrigation"].map(s => (
+              <div key={s} style={{ marginBottom: 10, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.55)", transition: "color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
+              >{s}</div>
+            ))}
+          </div>
+
+          {/* Company */}
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Company</div>
+            {COMPANY_LINKS.map(l => (
+              l.href ? (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  style={{ display: "block", marginBottom: 10, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.55)", transition: "color 0.2s", textDecoration: "none" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
+                >{l.label}</Link>
+              ) : (
+                <div key={l.label} style={{ marginBottom: 10, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.55)", transition: "color 0.2s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
+                >{l.label}</div>
+              )
+            ))}
+          </div>
+
+          {/* Contact */}
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Contact</div>
+            {[
+              { icon: Phone,  text: "081 412 5540" },
+              { icon: Mail,   text: "info@forevergreenturf.co.za" },
+              { icon: MapPin, text: "141 King Edward St, Parow, Cape Town, 7500" },
+            ].map(({ icon: Icon, text }, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
+                <Icon size={13} color={GRASS} />
+                {text}
+              </div>
+            ))}
+            <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Closed · Opens 7:30am Thu</div>
+          </div>
+        </div>
+
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© {new Date().getFullYear()} {BRAND} (Pty) Ltd. All rights reserved.</span>
+          <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>PIRB Reg. · NHBRC Member · Workmanship Guaranteed</span>
+        </div>
+      </div>
+      <style>{`
+        @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr 1fr !important; } }
+        @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr !important; } }
+      `}</style>
+    </footer>
+  );
+}
