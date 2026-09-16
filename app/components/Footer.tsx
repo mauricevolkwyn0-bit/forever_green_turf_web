@@ -93,8 +93,8 @@ export default function Footer() {
               { icon: Mail,   text: "info@forevergreenturf.co.za" },
               { icon: MapPin, text: "141 King Edward St, Parow, Cape Town, 7500" },
             ].map(({ icon: Icon, text }, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
-                <Icon size={13} color={GRASS} />
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
+                <Icon size={13} color={GRASS} style={{ flexShrink: 0, marginTop: 1 }} />
                 {text}
               </div>
             ))}
