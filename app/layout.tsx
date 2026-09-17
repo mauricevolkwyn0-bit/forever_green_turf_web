@@ -21,6 +21,15 @@ export const metadata: Metadata = {
   title: "Home | ForeverGreenTurf",
   description:
     "Premium lawn installation and brick paving for homes and developments across Cape Town and nearby areas.",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

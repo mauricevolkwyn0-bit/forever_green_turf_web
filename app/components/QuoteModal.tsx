@@ -1,9 +1,32 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Script from "next/script";
 import { X, Leaf, Layers, Flower2, Upload, CheckCircle } from "lucide-react";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
 import { useQuoteModal } from "./QuoteModalContext";
+
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+// Minimal shape of the `google` global injected by the Maps JavaScript API
+// script — just enough to type the Places Autocomplete usage below.
+type GoogleMapsNamespace = {
+  maps: {
+    places: {
+      Autocomplete: new (
+        input: HTMLInputElement,
+        opts: { fields: string[]; componentRestrictions: { country: string } }
+      ) => {
+        addListener: (event: string, handler: () => void) => { remove: () => void };
+        getPlace: () => { formatted_address?: string };
+      };
+    };
+    event: {
+      removeListener: (listener: { remove: () => void }) => void;
+      clearInstanceListeners: (instance: unknown) => void;
+    };
+  };
+};
 
 type ServiceType = "lawn" | "paving" | "garden";
 type ShapeId = "square" | "rectangle" | "circle" | "lshape";
@@ -53,15 +76,16 @@ function ShapeIcon({ shape, color }: { shape: ShapeId; color: string }) {
 }
 
 function Field({
-  label, value, onChange, placeholder, type = "text", required,
+  label, value, onChange, placeholder, type = "text", required, inputRef,
 }: {
   label: string; value: string; onChange: (v: string) => void;
-  placeholder?: string; type?: string; required?: boolean;
+  placeholder?: string; type?: string; required?: boolean; inputRef?: React.Ref<HTMLInputElement>;
 }) {
   return (
     <div>
       <label style={{ display: "block", fontWeight: 600, fontSize: 13, color: FOREST, marginBottom: 6, fontFamily: FONT_BODY }}>{label}</label>
       <input
+        ref={inputRef}
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -74,6 +98,8 @@ function Field({
 }
 
 const TOTAL_STEPS = 4;
+const EMAIL_STEP = TOTAL_STEPS + 1;
+const RESULT_STEP = EMAIL_STEP + 1;
 
 export default function QuoteModal() {
   const { isOpen, close } = useQuoteModal();
@@ -83,8 +109,10 @@ export default function QuoteModal() {
   const [shape, setShape] = useState<ShapeId | null>(null);
   const [dims, setDims] = useState<Record<string, string>>({});
   const [photos, setPhotos] = useState<File[]>([]);
-  const [contact, setContact] = useState({ name: "", phone: "", email: "" });
+  const [contact, setContact] = useState({ name: "", phone: "", email: "", location: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [mapsReady, setMapsReady] = useState(false);
+  const locationInputRef = useRef<HTMLInputElement>(null);
 
   function handleClose() {
     close();
@@ -93,7 +121,7 @@ export default function QuoteModal() {
     setShape(null);
     setDims({});
     setPhotos([]);
-    setContact({ name: "", phone: "", email: "" });
+    setContact({ name: "", phone: "", email: "", location: "" });
     setSubmitted(false);
   }
 
@@ -114,15 +142,41 @@ export default function QuoteModal() {
     return () => { photoPreviews.forEach(url => URL.revokeObjectURL(url)); };
   }, [photoPreviews]);
 
+  useEffect(() => {
+    const input = locationInputRef.current;
+    if (!mapsReady || step !== EMAIL_STEP || !input) return;
+    const google = (window as unknown as { google?: GoogleMapsNamespace }).google;
+    if (!google?.maps?.places) return;
+
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      fields: ["formatted_address"],
+      componentRestrictions: { country: "za" },
+    });
+    const listener = autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (place?.formatted_address) {
+        setContact(c => ({ ...c, location: place.formatted_address as string }));
+      }
+    });
+
+    return () => {
+      google.maps.event.removeListener(listener);
+      google.maps.event.clearInstanceListeners(input);
+    };
+  }, [mapsReady, step]);
+
   if (!isOpen) return null;
 
   const activeShape = SHAPES.find(s => s.id === shape);
   const dimsValid = activeShape ? activeShape.fields.every(f => parseFloat(dims[f.key]) > 0) : false;
+  const emailValid = /\S+@\S+\.\S+/.test(contact.email);
+  const contactValid = contact.name.trim() !== "" && contact.phone.trim() !== "";
 
   const canNext =
     step === 1 ? service !== null :
     step === 2 ? shape !== null :
     step === 3 ? dimsValid :
+    step === EMAIL_STEP ? emailValid :
     true;
 
   const area = shape ? calcArea(shape, dims) : 0;
@@ -148,9 +202,15 @@ export default function QuoteModal() {
   return (
     <div
       role="presentation"
-      onClick={handleClose}
       style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(26,31,16,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
     >
+      {GOOGLE_MAPS_API_KEY && (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`}
+          strategy="afterInteractive"
+          onReady={() => setMapsReady(true)}
+        />
+      )}
       <div
         role="dialog"
         aria-modal="true"
@@ -162,7 +222,7 @@ export default function QuoteModal() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: `1px solid rgba(42,74,25,0.1)`, position: "sticky", top: 0, background: "#fff", zIndex: 1 }}>
           <div>
             <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: FOREST }}>
-              {step <= TOTAL_STEPS ? "Get a Free Quote" : "Your Estimate"}
+              {step <= TOTAL_STEPS ? "Get a Free Quote" : step === EMAIL_STEP ? "One Last Step" : "Your Estimate"}
             </div>
             {step <= TOTAL_STEPS && (
               <div style={{ fontSize: 12, color: STONE, marginTop: 2 }}>Step {step} of {TOTAL_STEPS}</div>
@@ -292,8 +352,34 @@ export default function QuoteModal() {
             </div>
           )}
 
-          {/* Step 5 — result */}
-          {step > TOTAL_STEPS && service && shape && (
+          {/* Step 5 — email gate */}
+          {step === EMAIL_STEP && (
+            <div>
+              <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>
+                Enter your email address to see your personalised estimate.
+              </p>
+              <Field
+                label="Email Address"
+                type="email"
+                value={contact.email}
+                onChange={v => setContact(c => ({ ...c, email: v }))}
+                placeholder="your@email.co.za"
+                required
+              />
+              <div style={{ marginTop: 16 }}>
+                <Field
+                  label="Property Location"
+                  inputRef={locationInputRef}
+                  value={contact.location}
+                  onChange={v => setContact(c => ({ ...c, location: v }))}
+                  placeholder="Start typing your address..."
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Step 6 — result */}
+          {step > EMAIL_STEP && service && shape && (
             <div>
               <div style={{ background: CREAM, borderRadius: 4, padding: 20, marginBottom: 20 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -319,11 +405,16 @@ export default function QuoteModal() {
                   <div style={{ display: "grid", gap: 12, marginBottom: 16 }}>
                     <Field label="Full Name" value={contact.name} onChange={v => setContact(c => ({ ...c, name: v }))} placeholder="Your full name" required />
                     <Field label="Phone Number" type="tel" value={contact.phone} onChange={v => setContact(c => ({ ...c, phone: v }))} placeholder="082 000 0000" required />
-                    <Field label="Email Address" type="email" value={contact.email} onChange={v => setContact(c => ({ ...c, email: v }))} placeholder="your@email.co.za" required />
                   </div>
                   <button
                     type="submit"
-                    style={{ width: "100%", background: FOREST, color: "#fff", border: "none", borderRadius: 4, padding: "14px 24px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15, cursor: "pointer" }}
+                    disabled={!contactValid}
+                    style={{
+                      width: "100%", color: "#fff", border: "none", borderRadius: 4, padding: "14px 24px",
+                      fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15,
+                      background: contactValid ? FOREST : "rgba(42,74,25,0.4)",
+                      cursor: contactValid ? "pointer" : "default",
+                    }}
                   >
                     Request This Quote
                   </button>
@@ -334,7 +425,7 @@ export default function QuoteModal() {
         </div>
 
         {/* Footer nav */}
-        {step <= TOTAL_STEPS && (
+        {step <= EMAIL_STEP && (
           <div style={{ display: "flex", justifyContent: "space-between", padding: "16px 24px", borderTop: `1px solid rgba(42,74,25,0.1)`, position: "sticky", bottom: 0, background: "#fff" }}>
             <button
               onClick={() => setStep(s => Math.max(1, s - 1))}
@@ -351,7 +442,7 @@ export default function QuoteModal() {
                 padding: "12px 24px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, cursor: canNext ? "pointer" : "default",
               }}
             >
-              {step === TOTAL_STEPS ? "Get My Estimate" : "Next"}
+              {step === TOTAL_STEPS ? "Get My Estimate" : step === EMAIL_STEP ? "See My Estimate" : "Next"}
             </button>
           </div>
         )}

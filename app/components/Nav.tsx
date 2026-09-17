@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Phone, Leaf } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 import { FOREST, GRASS, CREAM, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
 import { useQuoteModal } from "./QuoteModalContext";
 
@@ -49,9 +49,8 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {/* Logo */}
         <Link href="/" onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", textDecoration: "none" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: FOREST, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Leaf size={18} color="#fff" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt={`${BRAND} logo`} width={36} height={36} />
           <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: solid ? FOREST : "#fff", letterSpacing: "-0.01em" }}>{BRAND}</span>
         </Link>
 

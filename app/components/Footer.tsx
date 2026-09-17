@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Phone, Mail, MapPin, Leaf } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
-import { FOREST, GRASS, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
+import { GRASS, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
 import { useCookieConsent } from "./CookieConsentContext";
 
 const COMPANY_LINKS: { label: string; href?: string }[] = [
@@ -30,9 +30,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 6, background: FOREST, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Leaf size={16} color={GRASS} />
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt={`${BRAND} logo`} width={32} height={32} />
               <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: "#fff" }}>{BRAND}</span>
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.7, maxWidth: 240, color: "rgba(255,255,255,0.5)" }}>

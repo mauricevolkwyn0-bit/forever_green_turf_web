@@ -24,3 +24,52 @@ body {
   color: var(--foreground);
   font-family: var(--font-dm-sans), system-ui, sans-serif;
 }
+
+/* Google Places Autocomplete dropdown (QuoteModal location field) —
+   Google renders this outside the React tree, so it can only be
+   restyled via global class overrides. Colors mirror app/components/theme.ts. */
+.pac-container {
+  margin-top: 6px;
+  border: 1px solid rgba(42, 74, 25, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 12px 28px rgba(26, 31, 16, 0.18);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.pac-item {
+  padding: 10px 14px;
+  border-top: 1px solid rgba(42, 74, 25, 0.08);
+  font-size: 14px;
+  color: #6b6251;
+  cursor: pointer;
+}
+
+.pac-item:first-child {
+  border-top: none;
+}
+
+.pac-item:hover,
+.pac-item-selected {
+  background: rgba(107, 155, 42, 0.1);
+}
+
+.pac-icon {
+  display: none;
+}
+
+.pac-item-query {
+  padding-right: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2a4a19;
+}
+
+.pac-matched {
+  font-weight: 700;
+  color: #6b9b2a;
+}
+
+.pac-logo:after {
+  margin: 6px 14px 10px;
+}

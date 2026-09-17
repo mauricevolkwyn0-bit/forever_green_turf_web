@@ -123,8 +123,9 @@ function Hero() {
 
       {/* Right — photo */}
       <div style={{ position: "relative", overflow: "hidden", minHeight: 480, background: "#2A3A1A" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://images.unsplash.com/photo-1594498653385-d5172c532c00?w=1200&h=900&fit=crop&auto=format"
+          src="/images/FB_IMG_1748359091923.jpg"
           alt="Lush professionally installed lawn"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
