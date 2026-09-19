@@ -14,9 +14,9 @@ const COMPANY_LINKS: { label: string; href?: string }[] = [
   { label: "Cookie Policy", href: "/cookies" },
 ];
 
-const SOCIALS = [
-  { label: "Facebook", icon: FaFacebook },
-  { label: "Instagram", icon: FaInstagram },
+const SOCIALS: { label: string; icon: typeof FaFacebook; href?: string }[] = [
+  { label: "Facebook", icon: FaFacebook, href: "https://www.facebook.com/share/1PMZqio8ZH/" },
+  { label: "Instagram", icon: FaInstagram, href: "https://www.instagram.com/forevertgreenturf?stkn=OHp0aHBkbHpzMnEw" },
   { label: "LinkedIn", icon: FaLinkedin },
 ];
 
@@ -38,16 +38,26 @@ export default function Footer() {
               Premium lawn installation and paving across Cape Town and nearby areas. Built by hand. Guaranteed by name.
             </p>
             <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
-              {SOCIALS.map(({ label, icon: Icon }) => (
-                <button
+              {SOCIALS.map(({ label, icon: Icon, href }) => (
+                <a
                   key={label}
+                  href={href ?? undefined}
+                  target={href ? "_blank" : undefined}
+                  rel={href ? "noopener noreferrer" : undefined}
                   aria-label={label}
-                  style={{ width: 32, height: 32, borderRadius: 4, background: "rgba(255,255,255,0.08)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "rgba(255,255,255,0.6)", transition: "color 0.2s, background 0.2s" }}
-                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = GRASS; }}
+                  aria-disabled={!href}
+                  onClick={e => { if (!href) e.preventDefault(); }}
+                  style={{
+                    width: 32, height: 32, borderRadius: 4, background: "rgba(255,255,255,0.08)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: href ? "pointer" : "default", color: "rgba(255,255,255,0.6)",
+                    opacity: href ? 1 : 0.4, transition: "color 0.2s, background 0.2s",
+                  }}
+                  onMouseEnter={e => { if (href) { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = GRASS; } }}
                   onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.6)"; e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
                 >
                   <Icon size={15} />
-                </button>
+                </a>
               ))}
             </div>
           </div>
