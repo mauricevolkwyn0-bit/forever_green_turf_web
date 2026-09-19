@@ -17,7 +17,7 @@ const SERVICES = [
   {
     id: "lawn",
     icon: Leaf,
-    title: "Lawn Installation",
+    title: "Artificial Grass Installation",
     desc: "Lush, level turf laid to perfection. We prepare the base, lay quality grass rolls, and leave you with a carpet-green result that lasts.",
     img: "/images/20260912_090200.jpg",
     tag: "lawns",

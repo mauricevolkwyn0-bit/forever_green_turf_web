@@ -33,7 +33,7 @@ type ServiceType = "lawn" | "paving" | "garden";
 type ShapeId = "square" | "rectangle" | "circle" | "lshape";
 
 const SERVICES: { id: ServiceType; label: string; icon: typeof Leaf }[] = [
-  { id: "lawn", label: "Lawn", icon: Leaf },
+  { id: "lawn", label: "Artificial grass", icon: Leaf },
   { id: "paving", label: "Paving", icon: Layers },
   { id: "garden", label: "Garden", icon: Flower2 },
 ];
