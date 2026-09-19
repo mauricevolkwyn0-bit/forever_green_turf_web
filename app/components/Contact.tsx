@@ -4,19 +4,41 @@ import { useState } from "react";
 import { Phone, Mail, MapPin, CheckCircle, Send } from "lucide-react";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
 
+const ERROR_RED = "#B3261E";
+
 type FormState = { name: string; phone: string; email: string; service: string; message: string };
 
 export default function Contact() {
   const [form, setForm] = useState<FormState>({ name: "", phone: "", email: "", service: "", message: "" });
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function set(field: keyof FormState, val: string) {
     setForm(f => ({ ...f, [field]: val }));
   }
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setSent(true);
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || "Something went wrong. Please try again.");
+      }
+      setSent(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -107,12 +129,16 @@ export default function Contact() {
               </div>
               <button
                 type="submit"
-                style={{ width: "100%", background: FOREST, color: "#fff", border: "none", borderRadius: 4, padding: "15px 24px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "background 0.2s" }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#1A2F10")}
-                onMouseLeave={e => (e.currentTarget.style.background = FOREST)}
+                disabled={submitting}
+                style={{ width: "100%", background: submitting ? "rgba(42,74,25,0.6)" : FOREST, color: "#fff", border: "none", borderRadius: 4, padding: "15px 24px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15, cursor: submitting ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "background 0.2s" }}
+                onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = "#1A2F10"; }}
+                onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = FOREST; }}
               >
-                <Send size={16} /> Send Quote Request
+                <Send size={16} /> {submitting ? "Sending…" : "Send Quote Request"}
               </button>
+              {submitError && (
+                <p style={{ fontSize: 13, color: ERROR_RED, textAlign: "center", marginTop: 14 }}>{submitError}</p>
+              )}
               <p style={{ fontSize: 12, color: STONE, textAlign: "center", marginTop: 14 }}>
                 No spam. We only contact you about your project.
               </p>
