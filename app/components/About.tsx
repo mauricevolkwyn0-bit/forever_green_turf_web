@@ -11,7 +11,7 @@ export default function About() {
         {/* Photos */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, position: "relative" }}>
           <img
-            src="https://images.unsplash.com/photo-1605117882932-f9e32b03fea9?w=500&h=680&fit=crop&auto=format"
+            src="/images/20251101_133114.jpg"
             alt={`${BRAND} team at work`}
             style={{ width: "100%", height: 380, objectFit: "cover", borderRadius: 4, gridRow: "1 / 3" }}
           />

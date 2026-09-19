@@ -19,7 +19,7 @@ const SERVICES = [
     icon: Leaf,
     title: "Lawn Installation",
     desc: "Lush, level turf laid to perfection. We prepare the base, lay quality grass rolls, and leave you with a carpet-green result that lasts.",
-    img: "https://images.unsplash.com/photo-1558904541-efa843a96f01?w=600&h=400&fit=crop&auto=format",
+    img: "/images/20260912_090200.jpg",
     tag: "lawns",
   },
   {
@@ -27,7 +27,7 @@ const SERVICES = [
     icon: Layers,
     title: "Brick Paving",
     desc: "Handcrafted patterns in clay and concrete brick for patios, paths, courtyards, and pool surrounds that age beautifully.",
-    img: "https://images.unsplash.com/photo-1652096069725-b6ff1a3837d9?w=600&h=400&fit=crop&auto=format",
+    img: "/images/brick-paving-hero-enhanced.png",
     tag: "paving",
   },
   {
@@ -35,7 +35,7 @@ const SERVICES = [
     icon: Hammer,
     title: "Driveway Paving",
     desc: "Durable, precision-laid driveways using interlocking pavers, exposed aggregate, or cobble engineered for heavy load and kerb appeal.",
-    img: "https://images.unsplash.com/photo-1621701845350-8518defeaec7?w=600&h=400&fit=crop&auto=format",
+    img: "/images/driveway-paving-hero-enhanced.png",
     tag: "paving",
   },
   {
@@ -59,7 +59,7 @@ const STEPS = [
 function Hero() {
   const { open: openQuoteModal } = useQuoteModal();
   return (
-    <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh" }} className="hero-grid">
+    <section id="main" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh" }} className="hero-grid">
       {/* Left — editorial */}
       <div style={{
         background: FOREST,
@@ -125,7 +125,7 @@ function Hero() {
       <div style={{ position: "relative", overflow: "hidden", minHeight: 480, background: "#2A3A1A" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/FB_IMG_1748359091923.jpg"
+          src="/images/lawn-hero-enhanced.png"
           alt="Lush professionally installed lawn"
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
@@ -310,7 +310,7 @@ export default function LandingPage({ testimonials }: { testimonials: React.Reac
       <Hero />
       <StatsBar />
       <Services />
-      <Portfolio />
+      <Portfolio showFilters={false} />
       <Process />
       {testimonials}
       <Footer />

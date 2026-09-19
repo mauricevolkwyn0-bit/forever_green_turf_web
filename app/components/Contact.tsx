@@ -26,7 +26,7 @@ export default function Contact() {
         <div>
           <span style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.14em", textTransform: "uppercase" }}>Get in Touch</span>
           <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(28px, 3.5vw, 46px)", color: FOREST, marginTop: 12, lineHeight: 1.1, letterSpacing: "-0.02em", marginBottom: 20 }}>
-            Request a<br /><em style={{ fontStyle: "italic" }}>Free Quote.</em>
+            We’d Love to<br /><em style={{ fontStyle: "italic" }}>Hear From You.</em>
           </h2>
           <p style={{ color: STONE, lineHeight: 1.75, fontSize: 15, marginBottom: 36 }}>
             Tell us about your project and we&apos;ll get back to you within one business day to schedule a site visit no obligation.

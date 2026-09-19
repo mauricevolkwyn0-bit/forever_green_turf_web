@@ -2,21 +2,28 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, ChevronDown } from "lucide-react";
 import { FOREST, GRASS, CREAM, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
 import { useQuoteModal } from "./QuoteModalContext";
 
+const NAV_HEIGHT = 72;
+
 const LINKS = [
-  { label: "Services", href: "/#services" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "Process", href: "/#process" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
+];
+
+const HOME_MENU = [
+  { label: "Main", href: "/#main", desc: "Back to the homepage overview" },
+  { label: "Services", href: "/#services", desc: "Lawn installation, paving & garden design" },
+  { label: "Process", href: "/#process", desc: "How we bring your project to life" },
 ];
 
 export default function Nav({ transparentOnTop = true }: { transparentOnTop?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [homeMenuOpen, setHomeMenuOpen] = useState(false);
   const { open: openQuoteModal } = useQuoteModal();
 
   useEffect(() => {
@@ -28,7 +35,8 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
 
   const solid = !transparentOnTop || scrolled;
 
-  function handleLogoClick(e: React.MouseEvent) {
+  function handleHomeClick(e: React.MouseEvent) {
+    setHomeMenuOpen(false);
     if (window.location.pathname === "/") {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -46,9 +54,9 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
         fontFamily: FONT_BODY,
       }}
     >
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 72, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: NAV_HEIGHT, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {/* Logo */}
-        <Link href="/" onClick={handleLogoClick} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", textDecoration: "none" }}>
+        <Link href="/" onClick={handleHomeClick} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", textDecoration: "none" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt={`${BRAND} logo`} width={36} height={36} />
           <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: solid ? FOREST : "#fff", letterSpacing: "-0.01em" }}>{BRAND}</span>
@@ -56,6 +64,67 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
 
         {/* Desktop links */}
         <div style={{ display: "flex", alignItems: "center", gap: 32 }} className="hidden-mobile">
+          {/* Home — hover reveals a full-width mega menu */}
+          <div
+            onMouseEnter={() => setHomeMenuOpen(true)}
+            onMouseLeave={() => setHomeMenuOpen(false)}
+            style={{ position: "relative" }}
+          >
+            <Link
+              href="/"
+              onClick={handleHomeClick}
+              style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 500, color: solid ? FOREST : "#fff", letterSpacing: "0.01em", transition: "opacity 0.2s", textDecoration: "none" }}
+              onMouseEnter={e => (e.currentTarget.style.opacity = "0.65")}
+              onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+            >
+              Home
+              <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: homeMenuOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+            </Link>
+
+            {homeMenuOpen && (
+              <div
+                style={{
+                  position: "fixed", top: NAV_HEIGHT, left: 0, right: 0, zIndex: 99,
+                  background: FOREST,
+                  borderTop: "1px solid rgba(255,255,255,0.1)",
+                  boxShadow: "0 24px 48px rgba(0,0,0,0.25)",
+                  padding: "56px 24px",
+                }}
+              >
+                <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+                  {HOME_MENU.map(item => (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => setHomeMenuOpen(false)}
+                      style={{ display: "block", padding: 24, borderRadius: 6, textDecoration: "none", transition: "background 0.2s" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 26, color: "#fff", marginBottom: 8, letterSpacing: "-0.01em" }}>
+                        {item.label}
+                      </div>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>
+                        {item.desc}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Dimming backdrop — deliberately OUTSIDE the hover-tracking wrapper
+              above. Nesting it inside previously meant the mouse never left
+              that wrapper's DOM subtree while over the backdrop (which covers
+              the whole viewport below the nav), so the menu never auto-closed. */}
+          {homeMenuOpen && (
+            <div
+              onClick={() => setHomeMenuOpen(false)}
+              style={{ position: "fixed", top: NAV_HEIGHT, left: 0, right: 0, bottom: 0, background: "rgba(10,15,6,0.35)", zIndex: 98 }}
+            />
+          )}
+
           {LINKS.map(l => (
             <Link
               key={l.label}
@@ -98,6 +167,25 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
       {/* Mobile menu */}
       {open && (
         <div style={{ background: CREAM, borderTop: `1px solid rgba(42,74,25,0.12)`, padding: "16px 24px 24px", fontFamily: FONT_BODY }}>
+          <Link
+            href="/"
+            onClick={() => { setOpen(false); }}
+            style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", fontSize: 16, fontWeight: 500, color: FOREST, padding: "12px 0", borderBottom: `1px solid rgba(42,74,25,0.08)`, textDecoration: "none" }}
+          >
+            Home
+          </Link>
+          <div style={{ padding: "4px 0 8px 16px", borderBottom: `1px solid rgba(42,74,25,0.08)` }}>
+            {HOME_MENU.map(item => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 500, color: FOREST, opacity: 0.75, padding: "8px 0", textDecoration: "none" }}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
           {LINKS.map(l => (
             <Link
               key={l.label}

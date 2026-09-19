@@ -14,7 +14,7 @@ const PORTFOLIO = [
   { id: 6, tag: "gardens", title: "Fourways Patio Garden",   img: "https://images.unsplash.com/photo-1771479452302-19a1849c0e25?w=600&h=400&fit=crop&auto=format", span: "" },
 ];
 
-export default function Portfolio() {
+export default function Portfolio({ showFilters = true }: { showFilters?: boolean }) {
   const [filter, setFilter] = useState<PortfolioFilter>("all");
   const filters: { id: PortfolioFilter; label: string }[] = [
     { id: "all",     label: "All Projects" },
@@ -32,28 +32,30 @@ export default function Portfolio() {
           <span style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.14em", textTransform: "uppercase" }}>Our Portfolio</span>
           <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: FOREST, marginTop: 12, lineHeight: 1.1, letterSpacing: "-0.02em" }}>Recent Projects</h2>
           {/* Filters */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 28, flexWrap: "wrap" }}>
-            {filters.map(f => (
-              <button
-                key={f.id}
-                onClick={() => setFilter(f.id)}
-                style={{
-                  background: filter === f.id ? FOREST : "transparent",
-                  color: filter === f.id ? "#fff" : STONE,
-                  border: `1px solid ${filter === f.id ? FOREST : "rgba(42,74,25,0.2)"}`,
-                  borderRadius: 100,
-                  padding: "8px 18px",
-                  fontFamily: FONT_BODY,
-                  fontWeight: 500,
-                  fontSize: 13,
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                }}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          {showFilters && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 28, flexWrap: "wrap" }}>
+              {filters.map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setFilter(f.id)}
+                  style={{
+                    background: filter === f.id ? FOREST : "transparent",
+                    color: filter === f.id ? "#fff" : STONE,
+                    border: `1px solid ${filter === f.id ? FOREST : "rgba(42,74,25,0.2)"}`,
+                    borderRadius: 100,
+                    padding: "8px 18px",
+                    fontFamily: FONT_BODY,
+                    fontWeight: 500,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridAutoRows: 240, gap: 16 }} className="portfolio-grid">

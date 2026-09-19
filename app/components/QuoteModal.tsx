@@ -7,6 +7,7 @@ import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
 import { useQuoteModal } from "./QuoteModalContext";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+const ERROR_RED = "#B3261E";
 
 // Minimal shape of the `google` global injected by the Maps JavaScript API
 // script — just enough to type the Places Autocomplete usage below.
@@ -111,6 +112,8 @@ export default function QuoteModal() {
   const [photos, setPhotos] = useState<File[]>([]);
   const [contact, setContact] = useState({ name: "", phone: "", email: "", location: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [mapsReady, setMapsReady] = useState(false);
   const locationInputRef = useRef<HTMLInputElement>(null);
 
@@ -123,6 +126,8 @@ export default function QuoteModal() {
     setPhotos([]);
     setContact({ name: "", phone: "", email: "", location: "" });
     setSubmitted(false);
+    setSubmitting(false);
+    setSubmitError(null);
   }
 
   useEffect(() => {
@@ -194,9 +199,36 @@ export default function QuoteModal() {
     setPhotos(p => [...p, ...Array.from(files)]);
   }
 
-  function submitCallback(e: React.FormEvent) {
+  async function submitCallback(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const fd = new FormData();
+      fd.append("name", contact.name);
+      fd.append("phone", contact.phone);
+      fd.append("email", contact.email);
+      fd.append("location", contact.location);
+      fd.append("service", service ?? "");
+      fd.append("shape", shape ?? "");
+      fd.append("dims", JSON.stringify(dims));
+      fd.append("area", area.toFixed(2));
+      fd.append("estimateLow", String(estimateLow));
+      fd.append("estimateHigh", String(estimateHigh));
+      photos.forEach(file => fd.append("photos", file, file.name));
+
+      const res = await fetch("/api/quote-request", { method: "POST", body: fd });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || "Something went wrong. Please try again.");
+      }
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -318,7 +350,7 @@ export default function QuoteModal() {
           {step === 4 && (
             <div>
               <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>
-                Upload a few photos of the area (optional) — this helps us give a more accurate quote.
+                Upload a few photos of the area (optional) this helps us give a more accurate quote.
               </p>
               <label
                 style={{
@@ -408,16 +440,19 @@ export default function QuoteModal() {
                   </div>
                   <button
                     type="submit"
-                    disabled={!contactValid}
+                    disabled={!contactValid || submitting}
                     style={{
                       width: "100%", color: "#fff", border: "none", borderRadius: 4, padding: "14px 24px",
                       fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15,
-                      background: contactValid ? FOREST : "rgba(42,74,25,0.4)",
-                      cursor: contactValid ? "pointer" : "default",
+                      background: contactValid && !submitting ? FOREST : "rgba(42,74,25,0.4)",
+                      cursor: contactValid && !submitting ? "pointer" : "default",
                     }}
                   >
-                    Request This Quote
+                    {submitting ? "Sending…" : "Request This Quote"}
                   </button>
+                  {submitError && (
+                    <p style={{ color: ERROR_RED, fontSize: 13, marginTop: 12 }}>{submitError}</p>
+                  )}
                 </form>
               )}
             </div>
