@@ -1,8 +1,12 @@
 "use client";
 
+// TODO: Add two aditionals steps after step 1, 
+// if type of lawn selected then choose type of lawn (20mm,25mm,30mm,35mm,40mm)
+// surface type (hard surface,best work) 
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
-import { X, Leaf, Layers, Flower2, Upload, CheckCircle } from "lucide-react";
+import { X, Leaf, Layers, Flower2, Upload, CheckCircle, MapPin, Loader2 } from "lucide-react";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
 import { useQuoteModal } from "./QuoteModalContext";
 
@@ -77,23 +81,31 @@ function ShapeIcon({ shape, color }: { shape: ShapeId; color: string }) {
 }
 
 function Field({
-  label, value, onChange, placeholder, type = "text", required, inputRef,
+  label, value, onChange, placeholder, type = "text", required, inputRef, rightIcon,
 }: {
   label: string; value: string; onChange: (v: string) => void;
   placeholder?: string; type?: string; required?: boolean; inputRef?: React.Ref<HTMLInputElement>;
+  rightIcon?: React.ReactNode;
 }) {
   return (
     <div>
       <label style={{ display: "block", fontWeight: 600, fontSize: 13, color: FOREST, marginBottom: 6, fontFamily: FONT_BODY }}>{label}</label>
-      <input
-        ref={inputRef}
-        type={type}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        style={{ width: "100%", background: "#F5F0E8", border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 4, padding: "12px 14px", fontFamily: FONT_BODY, fontSize: 14, color: FOREST, boxSizing: "border-box" }}
-      />
+      <div style={{ position: "relative" }}>
+        <input
+          ref={inputRef}
+          type={type}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          required={required}
+          style={{ width: "100%", background: "#F5F0E8", border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 4, padding: "12px 14px", paddingRight: rightIcon ? 40 : undefined, fontFamily: FONT_BODY, fontSize: 14, color: FOREST, boxSizing: "border-box" }}
+        />
+        {rightIcon && (
+          <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", display: "flex", pointerEvents: "none" }}>
+            {rightIcon}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -115,7 +127,16 @@ export default function QuoteModal() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [mapsReady, setMapsReady] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
   const locationInputRef = useRef<HTMLInputElement>(null);
+  const locationDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function setLocation(v: string) {
+    setContact(c => ({ ...c, location: v }));
+    setLocationLoading(true);
+    if (locationDebounceRef.current) clearTimeout(locationDebounceRef.current);
+    locationDebounceRef.current = setTimeout(() => setLocationLoading(false), 500);
+  }
 
   function handleClose() {
     close();
@@ -128,6 +149,7 @@ export default function QuoteModal() {
     setSubmitted(false);
     setSubmitting(false);
     setSubmitError(null);
+    setLocationLoading(false);
   }
 
   useEffect(() => {
@@ -162,6 +184,8 @@ export default function QuoteModal() {
       if (place?.formatted_address) {
         setContact(c => ({ ...c, location: place.formatted_address as string }));
       }
+      if (locationDebounceRef.current) clearTimeout(locationDebounceRef.current);
+      setLocationLoading(false);
     });
 
     return () => {
@@ -403,8 +427,9 @@ export default function QuoteModal() {
                   label="Property Location"
                   inputRef={locationInputRef}
                   value={contact.location}
-                  onChange={v => setContact(c => ({ ...c, location: v }))}
+                  onChange={setLocation}
                   placeholder="Start typing your address..."
+                  rightIcon={locationLoading ? <Loader2 size={16} color={GRASS} className="spin-icon" /> : <MapPin size={16} color={GRASS} />}
                 />
               </div>
             </div>

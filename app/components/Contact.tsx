@@ -1,23 +1,104 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Phone, Mail, MapPin, CheckCircle, Send } from "lucide-react";
+import Script from "next/script";
+import { Phone, Mail, MapPin, CheckCircle, Send, Loader2 } from "lucide-react";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, MAPS_URL } from "./theme";
 
 const ERROR_RED = "#B3261E";
+const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+const RECAPTCHA_ACTION = "contact";
 
-type FormState = { name: string; phone: string; email: string; service: string; message: string };
+// Minimal shape of the `google` global injected by the Maps JavaScript API
+// script — just enough to type the Places Autocomplete usage below.
+type GoogleMapsNamespace = {
+  maps: {
+    places: {
+      Autocomplete: new (
+        input: HTMLInputElement,
+        opts: { fields: string[]; componentRestrictions: { country: string } }
+      ) => {
+        addListener: (event: string, handler: () => void) => { remove: () => void };
+        getPlace: () => { formatted_address?: string };
+      };
+    };
+    event: {
+      removeListener: (listener: { remove: () => void }) => void;
+      clearInstanceListeners: (instance: unknown) => void;
+    };
+  };
+};
+
+// Minimal shape of the `grecaptcha` global injected by the reCAPTCHA v3 script.
+type Grecaptcha = {
+  ready: (cb: () => void) => void;
+  execute: (siteKey: string, opts: { action: string }) => Promise<string>;
+};
+
+// Resolves once with a fresh v3 token, or null if reCAPTCHA isn't configured
+// or fails to load — submission then falls back to the server's fail-open
+// behavior (see app/api/contact/route.ts).
+function getRecaptchaToken(): Promise<string | null> {
+  if (!RECAPTCHA_SITE_KEY) return Promise.resolve(null);
+  const grecaptcha = (window as unknown as { grecaptcha?: Grecaptcha }).grecaptcha;
+  if (!grecaptcha) return Promise.resolve(null);
+
+  return new Promise(resolve => {
+    grecaptcha.ready(() => {
+      grecaptcha.execute(RECAPTCHA_SITE_KEY!, { action: RECAPTCHA_ACTION }).then(resolve).catch(() => resolve(null));
+    });
+  });
+}
+
+type FormState = { name: string; phone: string; email: string; location: string; service: string; message: string };
 
 export default function Contact() {
-  const [form, setForm] = useState<FormState>({ name: "", phone: "", email: "", service: "", message: "" });
+  const [form, setForm] = useState<FormState>({ name: "", phone: "", email: "", location: "", service: "", message: "" });
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [mapsReady, setMapsReady] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const locationInputRef = useRef<HTMLInputElement>(null);
+  const locationDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function set(field: keyof FormState, val: string) {
     setForm(f => ({ ...f, [field]: val }));
   }
+
+  function setLocation(v: string) {
+    set("location", v);
+    setLocationLoading(true);
+    if (locationDebounceRef.current) clearTimeout(locationDebounceRef.current);
+    locationDebounceRef.current = setTimeout(() => setLocationLoading(false), 500);
+  }
+
+  useEffect(() => {
+    const input = locationInputRef.current;
+    if (!mapsReady || !input) return;
+    const google = (window as unknown as { google?: GoogleMapsNamespace }).google;
+    if (!google?.maps?.places) return;
+
+    const autocomplete = new google.maps.places.Autocomplete(input, {
+      fields: ["formatted_address"],
+      componentRestrictions: { country: "za" },
+    });
+    const listener = autocomplete.addListener("place_changed", () => {
+      const place = autocomplete.getPlace();
+      if (place?.formatted_address) {
+        setForm(f => ({ ...f, location: place.formatted_address as string }));
+      }
+      if (locationDebounceRef.current) clearTimeout(locationDebounceRef.current);
+      setLocationLoading(false);
+    });
+
+    return () => {
+      google.maps.event.removeListener(listener);
+      google.maps.event.clearInstanceListeners(input);
+    };
+  }, [mapsReady]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,10 +106,11 @@ export default function Contact() {
     setSubmitting(true);
     setSubmitError(null);
     try {
+      const recaptchaToken = await getRecaptchaToken();
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, recaptchaToken }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => null);
@@ -44,6 +126,19 @@ export default function Contact() {
 
   return (
     <section style={{ background: CREAM, padding: "160px 24px 100px", fontFamily: FONT_BODY }}>
+      {GOOGLE_MAPS_API_KEY && (
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`}
+          strategy="afterInteractive"
+          onReady={() => setMapsReady(true)}
+        />
+      )}
+      {RECAPTCHA_SITE_KEY && (
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
+          strategy="afterInteractive"
+        />
+      )}
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "5fr 6fr", gap: 80, alignItems: "start" }} className="contact-grid">
         {/* Left */}
         <div>
@@ -98,7 +193,7 @@ export default function Contact() {
                 Thanks, {form.name.split(" ")[0] || "there"}! We&apos;ll be in touch within one business day to arrange your free site visit.
               </p>
               <button
-                onClick={() => { setSent(false); setForm({ name: "", phone: "", email: "", service: "", message: "" }); }}
+                onClick={() => { setSent(false); setForm({ name: "", phone: "", email: "", location: "", service: "", message: "" }); }}
                 style={{ marginTop: 24, background: "transparent", color: GRASS, border: `1px solid ${GRASS}`, borderRadius: 4, padding: "10px 20px", fontFamily: FONT_BODY, fontSize: 14, fontWeight: 500, cursor: "pointer" }}
               >
                 Submit Another
@@ -112,6 +207,15 @@ export default function Contact() {
                 <FormField label="Phone Number" value={form.phone} onChange={v => set("phone", v)} placeholder="082 000 0000" type="tel" required />
               </div>
               <FormField label="Email Address" value={form.email} onChange={v => set("email", v)} placeholder="your@email.co.za" type="email" required style={{ marginBottom: 16 }} />
+              <FormField
+                label="Location"
+                inputRef={locationInputRef}
+                value={form.location}
+                onChange={setLocation}
+                placeholder="Start typing your address..."
+                style={{ marginBottom: 16 }}
+                rightIcon={locationLoading ? <Loader2 size={16} color={GRASS} className="spin-icon" /> : <MapPin size={16} color={GRASS} />}
+              />
               <div style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", fontWeight: 600, fontSize: 13, color: FOREST, marginBottom: 6 }}>Service Required</label>
                 <select
@@ -168,22 +272,31 @@ export default function Contact() {
 }
 
 function FormField({
-  label, value, onChange, placeholder, type = "text", required, style: extraStyle,
+  label, value, onChange, placeholder, type = "text", required, style: extraStyle, inputRef, rightIcon,
 }: {
   label: string; value: string; onChange: (v: string) => void;
-  placeholder?: string; type?: string; required?: boolean; style?: React.CSSProperties;
+  placeholder?: string; type?: string; required?: boolean; style?: React.CSSProperties; inputRef?: React.Ref<HTMLInputElement>;
+  rightIcon?: React.ReactNode;
 }) {
   return (
     <div style={extraStyle}>
       <label style={{ display: "block", fontWeight: 600, fontSize: 13, color: FOREST, marginBottom: 6, fontFamily: FONT_BODY }}>{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        style={{ width: "100%", background: "#F5F0E8", border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 4, padding: "12px 14px", fontFamily: FONT_BODY, fontSize: 14, color: FOREST, boxSizing: "border-box" }}
-      />
+      <div style={{ position: "relative" }}>
+        <input
+          ref={inputRef}
+          type={type}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          required={required}
+          style={{ width: "100%", background: "#F5F0E8", border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 4, padding: "12px 14px", paddingRight: rightIcon ? 40 : undefined, fontFamily: FONT_BODY, fontSize: 14, color: FOREST, boxSizing: "border-box" }}
+        />
+        {rightIcon && (
+          <div style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", display: "flex", pointerEvents: "none" }}>
+            {rightIcon}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
