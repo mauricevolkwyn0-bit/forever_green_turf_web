@@ -18,6 +18,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://forevergreenturf.co.za"),
   title: "Home | ForeverGreenTurf",
   description:
     "Premium lawn installation and brick paving for homes and developments across Cape Town and nearby areas.",
