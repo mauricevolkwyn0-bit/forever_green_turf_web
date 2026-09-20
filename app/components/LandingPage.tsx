@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -59,18 +59,35 @@ const STEPS = [
 function Hero() {
   const { open: openQuoteModal } = useQuoteModal();
   return (
-    <section id="main" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: "100vh" }} className="hero-grid">
-      {/* Left — editorial */}
-      <div style={{
-        background: FOREST,
-        display: "flex", flexDirection: "column", justifyContent: "center",
-        padding: "120px 64px 80px",
-        position: "relative", overflow: "hidden",
-      }}>
-        {/* Texture overlay */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 80% 20%, rgba(107,155,42,0.18) 0%, transparent 60%)", pointerEvents: "none" }} />
+    <section id="main" style={{
+      background: FOREST,
+      display: "flex", flexDirection: "column", justifyContent: "center",
+      minHeight: "100vh",
+      position: "relative", overflow: "hidden",
+      backgroundImage: "url(/images/hero-grass-texture.jpg)",
+      backgroundRepeat: "repeat",
+      backgroundSize: "420px auto",
+      backgroundAttachment: "fixed",
+    }}>
+      {/* Dark wash so the white text stays legible over the photo */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(15,26,9,0.88), rgba(15,26,9,0.68))" }} />
+      {/* Texture overlay */}
+      <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 80% 20%, rgba(107,155,42,0.22) 0%, transparent 60%)", pointerEvents: "none" }} />
 
-        <div style={{ position: "relative" }}>
+      {/* Worker photo, cutout with a transparent background */}
+      <div className="hero-worker" style={{ position: "absolute", right: "22%", top: "42%", transform: "translateY(-50%)", width: 400, height: "82%" }}>
+        <Image
+          src="/images/hero-worker.png"
+          alt="ForeverGreenTurf installer at work"
+          fill
+          sizes="340px"
+          priority
+          style={{ objectFit: "contain", objectPosition: "bottom" }}
+        />
+      </div>
+
+      <div style={{ position: "relative", maxWidth: 1200, width: "100%", margin: "0 auto", padding: "120px 64px 80px" }}>
+        <div style={{ maxWidth: 560 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24 }}>
             <div style={{ width: 32, height: 1, background: GRASS }} />
             <span style={{ fontFamily: FONT_BODY, fontSize: 12, fontWeight: 500, color: GRASS, letterSpacing: "0.14em", textTransform: "uppercase" }}>
@@ -121,51 +138,89 @@ function Hero() {
         </div>
       </div>
 
-      {/* Right — photo */}
-      <div style={{ position: "relative", overflow: "hidden", minHeight: 480, background: "#2A3A1A" }}>
-        <Image
-          src="/images/lawn-hero-enhanced.jpg"
-          alt="Lush professionally installed lawn"
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          priority
-          style={{ objectFit: "cover" }}
-        />
-        {/* Scroll cue */}
-        <div
-          style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer" }}
-          onClick={() => scrollTo("services")}
-        >
-          <span style={{ fontFamily: FONT_BODY, fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Scroll</span>
-          <ChevronDown size={20} color="rgba(255,255,255,0.6)" />
-        </div>
+      {/* Scroll cue */}
+      <div
+        style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer" }}
+        onClick={() => scrollTo("services")}
+      >
+        <span style={{ fontFamily: FONT_BODY, fontSize: 10, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Scroll</span>
+        <ChevronDown size={20} color="rgba(255,255,255,0.6)" />
       </div>
-
       <style>{`
-        @media (max-width: 768px) {
-          .hero-grid { grid-template-columns: 1fr !important; }
-          .hero-grid > div:last-child { min-height: 320px !important; }
-        }
+        @media (max-width: 1024px) { .hero-worker { display: none !important; } }
       `}</style>
     </section>
   );
 }
 
 // ─── Stats Bar ────────────────────────────────────────────────────────────────
+const STATS_ANIMATION_DURATION = 1800;
+
+function useInView<T extends HTMLElement>(threshold = 0.4) {
+  const ref = useRef<T>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, inView };
+}
+
+// Counts up from 0 to `target` over a fixed duration shared by every stat, so
+// a big number (500) climbs in larger increments than a small one (5) but
+// they all land on their final value at the same moment.
+function CountUp({ target, start, duration = STATS_ANIMATION_DURATION, decimals = 0 }: { target: number; start: boolean; duration?: number; decimals?: number }) {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (!start) return;
+    let raf: number;
+    const startTime = performance.now();
+
+    function tick(now: number) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      setValue(target * eased);
+      if (progress < 1) raf = requestAnimationFrame(tick);
+    }
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [start, target, duration]);
+
+  return <>{value.toFixed(decimals)}</>;
+}
+
 function StatsBar() {
   const stats = [
-    { value: "500+",  label: "Projects Completed" },
-    { value: "12",    label: "Years in Business" },
-    { value: "100%",  label: "Licensed & Insured" },
-    { value: "5★",    label: "Average Client Rating" },
+    { target: 500, suffix: "+", label: "Projects Completed" },
+    { target: 12,  suffix: "",  label: "Years in Business" },
+    { target: 100, suffix: "%", label: "Licensed & Insured" },
+    { target: 4.9, suffix: "★", label: "Average Client Rating", decimals: 1 },
   ];
+  const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
     <section style={{ background: FOREST, fontFamily: FONT_BODY }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }} className="stats-grid">
+      <div ref={ref} style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }} className="stats-grid">
         {stats.map((s, i) => (
           <div key={i} style={{ padding: "32px 24px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.1)" : "none", textAlign: "center" }} className="stat-cell">
-            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 40, color: "#BFD98F", letterSpacing: "-0.02em" }}>{s.value}</div>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 40, color: "#BFD98F", letterSpacing: "-0.02em" }}>
+              <CountUp target={s.target} start={inView} decimals={s.decimals} />{s.suffix}
+            </div>
             <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 6, fontWeight: 500, letterSpacing: "0.02em" }}>{s.label}</div>
           </div>
         ))}
@@ -262,8 +317,19 @@ function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
 // ─── Process ─────────────────────────────────────────────────────────────────
 function Process() {
   return (
-    <section id="process" style={{ background: FOREST, padding: "100px 24px", fontFamily: FONT_BODY }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+    <section id="process" style={{
+      background: FOREST,
+      padding: "100px 24px",
+      fontFamily: FONT_BODY,
+      position: "relative", overflow: "hidden",
+      backgroundImage: "url(/images/hero-grass-texture.jpg)",
+      backgroundRepeat: "repeat",
+      backgroundSize: "420px auto",
+      backgroundAttachment: "fixed",
+    }}>
+      {/* Dark wash so the white text stays legible over the photo */}
+      <div style={{ position: "absolute", inset: 0, background: "rgba(15,26,9,0.82)" }} />
+      <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative" }}>
         <div style={{ textAlign: "center", marginBottom: 64 }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.14em", textTransform: "uppercase" }}>The Process</span>
           <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: "#fff", marginTop: 12, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
