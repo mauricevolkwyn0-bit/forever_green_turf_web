@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ChevronRight, CheckCircle,
@@ -26,7 +27,7 @@ const SERVICES = [
     icon: Layers,
     title: "Brick Paving",
     desc: "Handcrafted patterns in clay and concrete brick for patios, paths, courtyards, and pool surrounds that age beautifully.",
-    img: "/images/brick-paving-hero-enhanced.png",
+    img: "/images/brick-paving-hero-enhanced.jpg",
     tag: "paving",
   },
   {
@@ -34,7 +35,7 @@ const SERVICES = [
     icon: Hammer,
     title: "Driveway Paving",
     desc: "Durable, precision-laid driveways using interlocking pavers, exposed aggregate, or cobble engineered for heavy load and kerb appeal.",
-    img: "/images/driveway-paving-hero-enhanced.png",
+    img: "/images/driveway-paving-hero-enhanced.jpg",
     tag: "paving",
   },
   {
@@ -42,7 +43,7 @@ const SERVICES = [
     icon: Flower2,
     title: "Garden Design",
     desc: "From concept sketch to planted finish we design and install indigenous and exotic garden beds, retaining walls, irrigation, and lighting.",
-    img: "/images/pool.png",
+    img: "/images/pool.jpg",
     tag: "gardens",
   },
 ];
@@ -122,11 +123,13 @@ function Hero() {
 
       {/* Right — photo */}
       <div style={{ position: "relative", overflow: "hidden", minHeight: 480, background: "#2A3A1A" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/lawn-hero-enhanced.png"
+        <Image
+          src="/images/lawn-hero-enhanced.jpg"
           alt="Lush professionally installed lawn"
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          priority
+          style={{ objectFit: "cover" }}
         />
         {/* Scroll cue */}
         <div
@@ -233,8 +236,14 @@ function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
         display: "block",
       }}
     >
-      <div style={{ height: 200, overflow: "hidden", background: "#2A3A1A" }}>
-        <img src={service.img} alt={service.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease", transform: hovered ? "scale(1.06)" : "scale(1)" }} />
+      <div style={{ height: 200, overflow: "hidden", background: "#2A3A1A", position: "relative" }}>
+        <Image
+          src={service.img}
+          alt={service.title}
+          fill
+          sizes="(max-width: 768px) 50vw, 25vw"
+          style={{ objectFit: "cover", transition: "transform 0.4s ease", transform: hovered ? "scale(1.06)" : "scale(1)" }}
+        />
       </div>
       <div style={{ padding: "24px" }}>
         <div style={{ width: 36, height: 36, borderRadius: 4, background: `rgba(107,155,42,0.12)`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14 }}>

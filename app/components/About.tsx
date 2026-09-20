@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock, Shield, Users, Award } from "lucide-react";
 import { FOREST, GRASS, STONE, FONT_DISPLAY, FONT_BODY, BRAND } from "./theme";
@@ -10,21 +11,33 @@ export default function About() {
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "5fr 6fr", gap: 80, alignItems: "center" }} className="about-grid">
         {/* Photos */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, position: "relative" }}>
-          <img
-            src="/images/20251101_133114.jpg"
-            alt={`${BRAND} team at work`}
-            style={{ width: "100%", height: 380, objectFit: "cover", borderRadius: 4, gridRow: "1 / 3" }}
-          />
-          <img
-            src="https://images.unsplash.com/photo-1597201278257-3687be27d954?w=500&h=320&fit=crop&auto=format"
-            alt="Manicured garden project"
-            style={{ width: "100%", height: 180, objectFit: "cover", borderRadius: 4, alignSelf: "end" }}
-          />
-          <img
-            src="https://images.unsplash.com/photo-1762461838534-ca26dfa134a8?w=500&h=320&fit=crop&auto=format"
-            alt="Garden patio design"
-            style={{ width: "100%", height: 180, objectFit: "cover", borderRadius: 4 }}
-          />
+          <div style={{ position: "relative", width: "100%", height: 380, borderRadius: 4, overflow: "hidden", gridRow: "1 / 3" }}>
+            <Image
+              src="/images/20251101_133114.jpg"
+              alt={`${BRAND} team at work`}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              style={{ objectFit: "cover" }}
+            />
+          </div>
+          <div style={{ position: "relative", width: "100%", height: 180, borderRadius: 4, overflow: "hidden", alignSelf: "end" }}>
+            <Image
+              src="/images/20250506_144101.jpg"
+              alt="Manicured garden project"
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              style={{ objectFit: "cover" }}
+            />
+          </div>
+          <div style={{ position: "relative", width: "100%", height: 180, borderRadius: 4, overflow: "hidden" }}>
+            <Image
+              src="/images/paving-driveway-gate.jpg"
+              alt="Garden patio design"
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              style={{ objectFit: "cover" }}
+            />
+          </div>
           {/* Badge */}
           <div style={{ position: "absolute", bottom: -20, left: "50%", transform: "translateX(-50%)", background: FOREST, color: "#fff", borderRadius: 4, padding: "14px 20px", textAlign: "center", whiteSpace: "nowrap" }}>
             <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: "#BFD98F" }}>12 Years</div>

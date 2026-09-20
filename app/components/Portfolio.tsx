@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
 
 type PortfolioTag = "lawn" | "paving" | "garden";
@@ -104,10 +105,12 @@ function PortfolioItem({ item, isLarge }: { item: PortfolioEntry; isLarge: boole
         background: "#2A3A1A",
       }}
     >
-      <img
+      <Image
         src={item.img}
         alt={item.title}
-        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease", transform: hovered ? "scale(1.06)" : "scale(1)" }}
+        fill
+        sizes={isLarge ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 500px) 100vw, (max-width: 768px) 50vw, 33vw"}
+        style={{ objectFit: "cover", transition: "transform 0.4s ease", transform: hovered ? "scale(1.06)" : "scale(1)" }}
       />
       <div style={{ position: "absolute", inset: 0, background: hovered ? "rgba(42,74,25,0.55)" : "rgba(0,0,0,0.15)", transition: "background 0.3s" }} />
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "20px 20px 20px", transform: hovered ? "translateY(0)" : "translateY(4px)", transition: "transform 0.3s" }}>
