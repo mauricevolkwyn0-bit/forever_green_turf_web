@@ -1,29 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { Storage } from "@google-cloud/storage";
-import { google } from "googleapis";
 import { generateQuotePdf } from "@/app/lib/quotePdf";
 import { sendQuoteEmail } from "@/app/lib/quoteEmail";
+import { getServiceAccountCredentials, getSheetsClient, resolveSpreadsheetId } from "@/app/lib/googleAuth";
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
-function credentials() {
-  return {
-    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!,
-    private_key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY!.replace(/\\n/g, "\n"),
-  };
-}
-
 function getStorage() {
-  return new Storage({ credentials: credentials(), projectId: process.env.GOOGLE_CLOUD_PROJECT_ID });
-}
-
-function getSheetsClient() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: credentials(),
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-  return google.sheets({ version: "v4", auth });
+  return new Storage({ credentials: getServiceAccountCredentials(), projectId: process.env.GOOGLE_CLOUD_PROJECT_ID });
 }
 
 function sanitizeFilename(name: string) {
@@ -54,13 +39,6 @@ function formatDims(dimsJson: string) {
   } catch {
     return "";
   }
-}
-
-// Accepts either a bare spreadsheet ID or the full Sheets URL people naturally
-// copy-paste from their browser address bar.
-function resolveSpreadsheetId() {
-  const raw = process.env.GOOGLE_SHEETS_SPREADSHEET_ID!;
-  return raw.match(/\/d\/([a-zA-Z0-9-_]+)/)?.[1] ?? raw;
 }
 
 async function appendQuoteRow(row: (string | number)[]) {

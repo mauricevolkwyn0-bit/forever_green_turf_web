@@ -9,7 +9,6 @@ import {
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, scrollTo } from "./theme";
 import Nav from "./Nav";
 import Footer from "./Footer";
-import Portfolio from "./Portfolio";
 import { useQuoteModal } from "./QuoteModalContext";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -43,7 +42,7 @@ const SERVICES = [
     icon: Flower2,
     title: "Garden Design",
     desc: "From concept sketch to planted finish we design and install indigenous and exotic garden beds, retaining walls, irrigation, and lighting.",
-    img: "https://images.unsplash.com/photo-1762461838534-ca26dfa134a8?w=600&h=400&fit=crop&auto=format",
+    img: "/images/pool.png",
     tag: "gardens",
   },
 ];
@@ -303,14 +302,14 @@ function Process() {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function LandingPage({ testimonials }: { testimonials: React.ReactNode }) {
+export default function LandingPage({ testimonials, portfolio }: { testimonials: React.ReactNode; portfolio: React.ReactNode }) {
   return (
     <div style={{ fontFamily: FONT_BODY, overflowX: "hidden" }}>
       <Nav />
       <Hero />
       <StatsBar />
       <Services />
-      <Portfolio showFilters={false} />
+      {portfolio}
       <Process />
       {testimonials}
       <Footer />
