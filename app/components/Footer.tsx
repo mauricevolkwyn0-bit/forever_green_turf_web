@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
@@ -30,8 +31,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt={`${BRAND} logo`} width={32} height={32} />
+              <Image src="/logo.png" alt={`${BRAND} logo`} width={32} height={32} />
               <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: "#fff" }}>{BRAND}</span>
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.7, maxWidth: 240, color: "rgba(255,255,255,0.5)" }}>

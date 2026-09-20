@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { QuoteModalProvider } from "./components/QuoteModalContext";
-import QuoteModal from "./components/QuoteModal";
+import LazyQuoteModal from "./components/LazyQuoteModal";
 import { CookieConsentProvider } from "./components/CookieConsentContext";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import WhatsAppButton from "./components/WhatsAppButton";
@@ -43,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <CookieConsentProvider>
           <QuoteModalProvider>
             {children}
-            <QuoteModal />
+            <LazyQuoteModal />
           </QuoteModalProvider>
           <WhatsAppButton />
           <CookieConsentBanner />

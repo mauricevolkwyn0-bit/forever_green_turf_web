@@ -1,19 +1,10 @@
+import { unstable_cache } from "next/cache";
 import { getSheetsClient, hasServiceAccountCredentials, resolveSpreadsheetId } from "./googleAuth";
 import type { PortfolioEntry } from "../components/Portfolio";
 
 const VALID_TAGS = new Set(["lawn", "paving", "garden"]);
 
-// Portfolio projects are managed by the business in a "Portfolio" tab of the
-// same Google Sheet used for quote leads, so non-technical staff can add or
-// remove projects without a code deploy. Expected columns (row 1 is a header,
-// data starts at row 2):
-//   A: Title           e.g. "Sandton Residential"
-//   B: Category        "lawn", "paving", or "garden"
-//   C: Image           object path in the GCS_BUCKET_NAME bucket, e.g.
-//                       "portfolio/sandton-1.jpg" (or a full https:// URL)
-// Returns null (caller falls back to placeholder projects) whenever the
-// sheet isn't configured, has no valid rows, or the fetch fails.
-export async function getPortfolioItems(): Promise<PortfolioEntry[] | null> {
+async function fetchPortfolioItems(): Promise<PortfolioEntry[] | null> {
   const bucket = process.env.GCS_BUCKET_NAME;
   if (!bucket || !process.env.GOOGLE_SHEETS_SPREADSHEET_ID || !hasServiceAccountCredentials()) {
     return null;
@@ -44,3 +35,24 @@ export async function getPortfolioItems(): Promise<PortfolioEntry[] | null> {
     return null;
   }
 }
+
+// Portfolio projects are managed by the business in a "Portfolio" tab of the
+// same Google Sheet used for quote leads, so non-technical staff can add or
+// remove projects without a code deploy. Expected columns (row 1 is a header,
+// data starts at row 2):
+//   A: Title           e.g. "Sandton Residential"
+//   B: Category        "lawn", "paving", or "garden"
+//   C: Image           object path in the GCS_BUCKET_NAME bucket, e.g.
+//                       "portfolio/sandton-1.jpg" (or a full https:// URL)
+// Returns null (caller falls back to placeholder projects) whenever the
+// sheet isn't configured, has no valid rows, or the fetch fails.
+//
+// Wrapped in unstable_cache: this calls the Sheets API directly (not via
+// `fetch`), so without caching it would re-run on every request in
+// production, adding a live external API round-trip to every homepage and
+// /portfolio page load. Revalidating every 5 minutes keeps pages fast while
+// still picking up sheet edits without a redeploy.
+export const getPortfolioItems = unstable_cache(fetchPortfolioItems, ["portfolio-items"], {
+  revalidate: 300,
+  tags: ["portfolio"],
+});
