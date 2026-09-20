@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, Phone, ChevronDown } from "lucide-react";
-import { FOREST, GRASS, CREAM, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
+import { FOREST, GRASS, CREAM, STONE, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
 import { useQuoteModal } from "./QuoteModalContext";
 
 const NAV_HEIGHT = 72;
@@ -57,8 +58,7 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: NAV_HEIGHT, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {/* Logo */}
         <Link href="/" onClick={handleHomeClick} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", textDecoration: "none" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt={`${BRAND} logo`} width={36} height={36} />
+          <Image src="/logo.png" alt={`${BRAND} logo`} width={36} height={36} priority />
           <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: solid ? FOREST : "#fff", letterSpacing: "-0.01em" }}>{BRAND}</span>
         </Link>
 
@@ -91,9 +91,9 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
               <div
                 style={{
                   position: "fixed", top: NAV_HEIGHT, left: 0, right: 0, zIndex: 99,
-                  background: FOREST,
-                  borderTop: "1px solid rgba(255,255,255,0.1)",
-                  boxShadow: "0 24px 48px rgba(0,0,0,0.25)",
+                  background: "#E8E4D8",
+                  borderTop: "1px solid rgba(42,74,25,0.12)",
+                  boxShadow: "0 24px 48px rgba(0,0,0,0.18)",
                   padding: "56px 24px",
                 }}
               >
@@ -104,13 +104,13 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
                       href={item.href}
                       onClick={() => setHomeMenuOpen(false)}
                       style={{ display: "block", padding: 24, borderRadius: 6, textDecoration: "none", transition: "background 0.2s" }}
-                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(42,74,25,0.06)")}
                       onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                     >
-                      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 26, color: "#fff", marginBottom: 8, letterSpacing: "-0.01em" }}>
+                      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 26, color: FOREST, marginBottom: 8, letterSpacing: "-0.01em" }}>
                         {item.label}
                       </div>
-                      <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>
+                      <div style={{ fontFamily: FONT_BODY, fontSize: 14, color: STONE, lineHeight: 1.5 }}>
                         {item.desc}
                       </div>
                     </Link>
