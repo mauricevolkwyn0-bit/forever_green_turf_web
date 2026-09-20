@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { Phone, Mail, MapPin, CheckCircle, Send, Loader2 } from "lucide-react";
@@ -174,11 +175,11 @@ export default function Contact() {
 
           {/* Photo strip */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 36 }}>
-            <Link href="/portfolio" style={{ display: "block" }}>
-              <img src="https://images.unsplash.com/photo-1780216200639-47d28549d04e?w=400&h=240&fit=crop&auto=format" alt="Paving work" style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 4 }} />
+            <Link href="/portfolio" style={{ display: "block", position: "relative", height: 140, borderRadius: 4, overflow: "hidden" }}>
+              <Image src="/images/20260228_135947.jpg" alt="Lawn installation" fill sizes="(max-width: 768px) 50vw, 25vw" style={{ objectFit: "cover" }} />
             </Link>
-            <Link href="/portfolio" style={{ display: "block" }}>
-              <img src="https://images.unsplash.com/photo-1558904541-efa843a96f01?w=400&h=240&fit=crop&auto=format" alt="Lawn installation" style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 4 }} />
+            <Link href="/portfolio" style={{ display: "block", position: "relative", height: 140, borderRadius: 4, overflow: "hidden" }}>
+              <Image src="/images/20260227_184044.jpg" alt="Paving work" fill sizes="(max-width: 768px) 50vw, 25vw" style={{ objectFit: "cover" }} />
             </Link>
           </div>
         </div>
