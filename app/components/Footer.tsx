@@ -65,7 +65,7 @@ export default function Footer() {
           {/* Services */}
           <div>
             <div style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Services</div>
-            {["Lawn Installation", "Brick Paving", "Driveway Paving", "Garden Design"].map(s => (
+            {["Artificial Grass Installation", "Brick Paving", "Driveway Paving", "Garden Design"].map(s => (
               <div key={s} style={{ marginBottom: 10, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.55)", transition: "color 0.2s" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
                 onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
