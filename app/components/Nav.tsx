@@ -64,11 +64,17 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
 
         {/* Desktop links */}
         <div style={{ display: "flex", alignItems: "center", gap: 32 }} className="hidden-mobile">
-          {/* Home — hover reveals a full-width mega menu */}
+          {/* Home — hover reveals a full-width mega menu.
+              height/display here make this wrapper span the full nav bar
+              height, flush against the dropdown's `top: NAV_HEIGHT` below —
+              otherwise there's a dead zone between the "Home" text and the
+              dropdown that isn't part of the hover area, so moving the
+              mouse down toward the menu exits the wrapper and closes it
+              before the cursor arrives. */}
           <div
             onMouseEnter={() => setHomeMenuOpen(true)}
             onMouseLeave={() => setHomeMenuOpen(false)}
-            style={{ position: "relative" }}
+            style={{ position: "relative", height: NAV_HEIGHT, display: "flex", alignItems: "center" }}
           >
             <Link
               href="/"
