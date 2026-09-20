@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Phone, Mail, MapPin, CheckCircle, Send } from "lucide-react";
-import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
+import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, MAPS_URL } from "./theme";
 
 const ERROR_RED = "#B3261E";
 
@@ -55,11 +56,17 @@ export default function Contact() {
           </p>
 
           {[
-            { icon: Phone,  text: "081 412 5540",               sub: "Closed · Opens 7:30am Thu" },
-            { icon: Mail,   text: "info@forevergreenturf.co.za", sub: "Replies within 1 business day" },
-            { icon: MapPin, text: "141 King Edward St, Parow, Cape Town, 7500", sub: "Serving Cape Town and nearby areas" },
-          ].map(({ icon: Icon, text, sub }, i) => (
-            <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 22 }}>
+            { icon: Phone,  text: "081 412 5540",               sub: "Closed · Opens 7:30am Thu",  href: "tel:+27814125540" },
+            { icon: Mail,   text: "info@forevergreenturf.co.za", sub: "Replies within 1 business day", href: "mailto:info@forevergreenturf.co.za" },
+            { icon: MapPin, text: "141 King Edward St, Parow, Cape Town, 7500", sub: "Serving Cape Town and nearby areas", href: MAPS_URL, external: true },
+          ].map(({ icon: Icon, text, sub, href, external }, i) => (
+            <a
+              key={i}
+              href={href}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
+              style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 22, textDecoration: "none", cursor: "pointer" }}
+            >
               <div style={{ width: 40, height: 40, borderRadius: 4, background: FOREST, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Icon size={16} color={GRASS} />
               </div>
@@ -67,13 +74,17 @@ export default function Contact() {
                 <div style={{ fontWeight: 600, fontSize: 15, color: FOREST }}>{text}</div>
                 <div style={{ fontSize: 13, color: STONE, marginTop: 2 }}>{sub}</div>
               </div>
-            </div>
+            </a>
           ))}
 
           {/* Photo strip */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 36 }}>
-            <img src="https://images.unsplash.com/photo-1780216200639-47d28549d04e?w=400&h=240&fit=crop&auto=format" alt="Paving work" style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 4 }} />
-            <img src="https://images.unsplash.com/photo-1558904541-efa843a96f01?w=400&h=240&fit=crop&auto=format" alt="Lawn installation" style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 4 }} />
+            <Link href="/portfolio" style={{ display: "block" }}>
+              <img src="https://images.unsplash.com/photo-1780216200639-47d28549d04e?w=400&h=240&fit=crop&auto=format" alt="Paving work" style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 4 }} />
+            </Link>
+            <Link href="/portfolio" style={{ display: "block" }}>
+              <img src="https://images.unsplash.com/photo-1558904541-efa843a96f01?w=400&h=240&fit=crop&auto=format" alt="Lawn installation" style={{ width: "100%", height: 140, objectFit: "cover", borderRadius: 4 }} />
+            </Link>
           </div>
         </div>
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
-import { GRASS, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
+import { GRASS, FONT_BODY, FONT_DISPLAY, BRAND, MAPS_URL } from "./theme";
 import { useCookieConsent } from "./CookieConsentContext";
 
 const COMPANY_LINKS: { label: string; href?: string }[] = [
@@ -98,16 +98,33 @@ export default function Footer() {
           <div>
             <div style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Contact</div>
             {[
-              { icon: Phone,  text: "081 412 5540" },
-              { icon: Mail,   text: "info@forevergreenturf.co.za" },
-              { icon: MapPin, text: "141 King Edward St, Parow, Cape Town, 7500" },
-            ].map(({ icon: Icon, text }, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
+              { icon: Phone,  text: "081 412 5540",                                href: "tel:+27814125540" },
+              { icon: Mail,   text: "info@forevergreenturf.co.za",                 href: "mailto:info@forevergreenturf.co.za" },
+              { icon: MapPin, text: "141 King Edward St, Parow, Cape Town, 7500",   href: MAPS_URL, external: true },
+            ].map(({ icon: Icon, text, href, external }, i) => (
+              <a
+                key={i}
+                href={href}
+                target={external ? "_blank" : undefined}
+                rel={external ? "noopener noreferrer" : undefined}
+                style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 12, fontSize: 13, color: "rgba(255,255,255,0.55)", textDecoration: "none", transition: "color 0.2s" }}
+                onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
+                onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
+              >
                 <Icon size={13} color={GRASS} style={{ flexShrink: 0, marginTop: 1 }} />
                 {text}
-              </div>
+              </a>
             ))}
-            <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Closed · Opens 7:30am Thu</div>
+            <a
+              href={MAPS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: "block", marginTop: 4, fontSize: 12, color: "rgba(255,255,255,0.3)", textDecoration: "none", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.6)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}
+            >
+              Closed · Opens 7:30am Thu
+            </a>
           </div>
         </div>
 
