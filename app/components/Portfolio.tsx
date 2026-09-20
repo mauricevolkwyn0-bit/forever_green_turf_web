@@ -26,7 +26,7 @@ const FALLBACK_PORTFOLIO: PortfolioEntry[] = [
   { id: 6, tag: "garden", title: "Fourways Patio Garden",   img: "https://images.unsplash.com/photo-1771479452302-19a1849c0e25?w=600&h=400&fit=crop&auto=format" },
 ];
 
-export default function Portfolio({ showFilters = true, items }: { showFilters?: boolean; items?: PortfolioEntry[] }) {
+export default function Portfolio({ showFilters = true, items, compact = false }: { showFilters?: boolean; items?: PortfolioEntry[]; compact?: boolean }) {
   const [filter, setFilter] = useState<PortfolioFilter>("all");
   const filters: { id: PortfolioFilter; label: string }[] = [
     { id: "all",    label: "All Projects" },
@@ -39,7 +39,7 @@ export default function Portfolio({ showFilters = true, items }: { showFilters?:
   const visible = filter === "all" ? source : source.filter(p => p.tag === filter);
 
   return (
-    <section style={{ background: CREAM, padding: "160px 24px 100px", fontFamily: FONT_BODY }}>
+    <section style={{ background: CREAM, padding: compact ? "48px 24px 100px" : "160px 24px 100px", fontFamily: FONT_BODY }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.14em", textTransform: "uppercase" }}>Our Portfolio</span>
