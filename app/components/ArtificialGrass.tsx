@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   Ruler, PawPrint, Shovel, Layers, Droplets, Scissors, Wind, Home, Building2,
 } from "lucide-react";
@@ -40,9 +41,20 @@ export default function ArtificialGrass() {
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }} className="pile-grid">
               {PILE_HEIGHTS.map(h => (
-                <div key={h} style={{ border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 6, padding: "28px 12px" }}>
-                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28, color: FOREST }}>{h}</div>
-                  <div style={{ fontSize: 12, color: STONE, marginTop: 4 }}>Pile Height</div>
+                <div key={h} style={{ border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 6, overflow: "hidden" }}>
+                  <div style={{ position: "relative", width: "100%", height: 110 }}>
+                    <Image
+                      src={`/images/grass-${h}.jpg`}
+                      alt={`${h} artificial grass pile height sample`}
+                      fill
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      style={{ objectFit: "cover", objectPosition: "center bottom" }}
+                    />
+                  </div>
+                  <div style={{ padding: "16px 12px" }}>
+                    <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28, color: FOREST }}>{h}</div>
+                    <div style={{ fontSize: 12, color: STONE, marginTop: 4 }}>Pile Height</div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -54,7 +66,7 @@ export default function ArtificialGrass() {
       <FadeInSection>
         <FeatureGrid
           heading="Supply, Preparation & Installation"
-          subheading="Every artificial grass project includes the preparation work that makes it last — not just the roll of grass on top."
+          subheading="Every artificial grass project includes the preparation work that makes it last, not just the roll of grass on top."
           items={FEATURES}
         />
       </FadeInSection>
