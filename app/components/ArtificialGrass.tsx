@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   Ruler, PawPrint, Shovel, Layers, Droplets, Scissors, Wind, Home, Building2,
 } from "lucide-react";
@@ -41,7 +42,11 @@ export default function ArtificialGrass() {
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }} className="pile-grid">
               {PILE_HEIGHTS.map(h => (
-                <div key={h} style={{ border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 6, overflow: "hidden" }}>
+                <Link
+                  key={h}
+                  href={`/portfolio?category=lawn&pileHeight=${h}`}
+                  style={{ display: "block", border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 6, overflow: "hidden", textDecoration: "none" }}
+                >
                   <div style={{ position: "relative", width: "100%", height: 110 }}>
                     <Image
                       src={`/images/grass-${h}.jpg`}
@@ -55,7 +60,7 @@ export default function ArtificialGrass() {
                     <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28, color: FOREST }}>{h}</div>
                     <div style={{ fontSize: 12, color: STONE, marginTop: 4 }}>Pile Height</div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

@@ -8,7 +8,7 @@ import FadeInSection from "./FadeInSection";
 type PortfolioTag = "lawn" | "paving" | "garden";
 type PortfolioFilter = "all" | PortfolioTag;
 
-export type PortfolioEntry = { id: string | number; tag: PortfolioTag; title: string; img: string };
+export type PortfolioEntry = { id: string | number; tag: PortfolioTag; title: string; img: string; pileHeight?: string };
 
 const TAG_LABELS: Record<PortfolioTag, string> = {
   lawn: "Artificial Grass",
@@ -33,8 +33,16 @@ const FALLBACK_PORTFOLIO: PortfolioEntry[] = [
 const PAGE_SIZE = 9;
 const LOAD_STEP = 6;
 
-export default function Portfolio({ showFilters = true, items, compact = false, limit }: { showFilters?: boolean; items?: PortfolioEntry[]; compact?: boolean; limit?: number }) {
-  const [filter, setFilter] = useState<PortfolioFilter>("all");
+export default function Portfolio({
+  showFilters = true, items, compact = false, limit, initialFilter, initialPileHeight,
+}: {
+  showFilters?: boolean; items?: PortfolioEntry[]; compact?: boolean; limit?: number;
+  initialFilter?: PortfolioFilter; initialPileHeight?: string;
+}) {
+  const [filter, setFilter] = useState<PortfolioFilter>(initialFilter ?? "all");
+  // One-time deep-link preset from e.g. /portfolio?category=lawn&pileHeight=20mm —
+  // cleared as soon as the visitor touches a filter button themselves.
+  const [pileHeight, setPileHeight] = useState<string | undefined>(initialPileHeight);
   const [renderCount, setRenderCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const filters: { id: PortfolioFilter; label: string }[] = [
@@ -45,13 +53,18 @@ export default function Portfolio({ showFilters = true, items, compact = false, 
   ];
 
   const source = items ?? FALLBACK_PORTFOLIO;
-  const filtered = filter === "all" ? source : source.filter(p => p.tag === filter);
+  // Sheet values and the ?pileHeight= link param can both be written with or
+  // without the "mm" suffix (e.g. "20" vs "20mm") — compare on digits only.
+  const normalizedPileHeight = pileHeight?.replace(/\D/g, "") || undefined;
+  const filtered = (filter === "all" ? source : source.filter(p => p.tag === filter))
+    .filter(p => !normalizedPileHeight || p.pileHeight?.replace(/\D/g, "") === normalizedPileHeight);
   const visible = limit ? filtered.slice(0, limit) : filtered;
   const shown = visible.slice(0, renderCount);
   const hasMore = renderCount < visible.length;
 
   function selectFilter(f: PortfolioFilter) {
     setFilter(f);
+    setPileHeight(undefined);
     setRenderCount(PAGE_SIZE);
   }
 

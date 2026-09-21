@@ -9,11 +9,22 @@ export const metadata: Metadata = {
     "Browse recent ForeverGreenTurf artificial grass, paving, and landscaping projects across Cape Town and surrounding areas.",
 };
 
-export default function PortfolioPage() {
+const VALID_CATEGORIES = new Set(["lawn", "paving", "garden"]);
+
+export default async function PortfolioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const rawCategory = typeof params.category === "string" ? params.category : undefined;
+  const initialFilter = rawCategory && VALID_CATEGORIES.has(rawCategory) ? (rawCategory as "lawn" | "paving" | "garden") : undefined;
+  const initialPileHeight = typeof params.pileHeight === "string" ? params.pileHeight : undefined;
+
   return (
     <div style={{ overflowX: "hidden", overflowY: "hidden" }}>
       <Nav transparentOnTop={false} />
-      <PortfolioSection />
+      <PortfolioSection initialFilter={initialFilter} initialPileHeight={initialPileHeight} />
       <Footer />
     </div>
   );
