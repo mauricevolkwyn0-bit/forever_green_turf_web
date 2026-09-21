@@ -9,8 +9,8 @@ import FadeInSection from "./FadeInSection";
 import { normalizePavingType } from "./Portfolio";
 
 const PAVING_TYPES = [
-  { label: "Cement Bond Paving", image: "paving-cement-bond.jpg" },
-  { label: "Block Paving", image: "paving-block.jpg" },
+  { label: "Cement Bond Paving", image: "paving-block.jpg" },
+  { label: "Block Paving", image: "paving-cement-bond.jpg" },
   { label: "Cobblestone Paving", image: "paving-cobblestone.jpg" },
   { label: "Wheatstone Paving", image: "paving-wheatstone.jpg" },
 ];
