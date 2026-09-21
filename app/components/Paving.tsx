@@ -29,7 +29,7 @@ export default function Paving() {
       <FadeInSection>
         <FeatureGrid
           heading="Our Paving Services"
-          subheading="Every paving project starts with proper preparation and finishes with clean, precise edging — the details that make paving last."
+          subheading="Every paving project starts with proper preparation and finishes with clean, precise edging, the details that make paving last."
           items={FEATURES}
         />
       </FadeInSection>

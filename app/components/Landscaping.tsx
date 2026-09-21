@@ -20,7 +20,7 @@ export default function Landscaping() {
       <ServiceHero
         eyebrow="Landscaping Cape Town"
         title="Practical Landscaping Solutions"
-        intro="We focus on practical outdoor improvement, not design for its own sake — garden transformations, preparation, and landscaping across Cape Town and surrounding areas."
+        intro="We focus on practical outdoor improvement, not design for its own sake, garden transformations, preparation, and landscaping across Cape Town and surrounding areas."
       />
 
       <FadeInSection>
