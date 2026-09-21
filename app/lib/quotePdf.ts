@@ -16,6 +16,8 @@ export type QuotePdfData = {
   area: string;
   estimateLow: string;
   estimateHigh: string;
+  serviceDetail1?: string;
+  serviceDetail2?: string;
 };
 
 const CONTACT = {
@@ -138,6 +140,11 @@ function drawDetailsTable(doc: PDFKit.PDFDocument, data: QuotePdfData, startY: n
     ["Dimensions", data.dimsSummary || "—"],
     ["Area", `${data.area} m²`],
   ];
+  for (const detail of [data.serviceDetail1, data.serviceDetail2]) {
+    if (!detail) continue;
+    const [label, ...rest] = detail.split(": ");
+    rows.push(rest.length ? [label, rest.join(": ")] : ["Detail", detail]);
+  }
 
   const labelColX = MARGIN + 12;
   const valueColX = MARGIN + 170;

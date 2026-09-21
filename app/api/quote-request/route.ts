@@ -46,7 +46,7 @@ async function appendQuoteRow(row: (string | number)[]) {
   const tab = process.env.GOOGLE_SHEETS_SHEET_NAME || "Sheet1";
   await sheets.spreadsheets.values.append({
     spreadsheetId: resolveSpreadsheetId(),
-    range: `${tab}!A:L`,
+    range: `${tab}!A:N`,
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
     requestBody: { values: [row] },
@@ -72,6 +72,8 @@ export async function POST(request: Request) {
   const area = str("area");
   const estimateLow = str("estimateLow");
   const estimateHigh = str("estimateHigh");
+  const serviceDetail1 = str("serviceDetail1");
+  const serviceDetail2 = str("serviceDetail2");
 
   const missing: string[] = [];
   if (!name) missing.push("name");
@@ -116,6 +118,8 @@ export async function POST(request: Request) {
       estimateLow,
       estimateHigh,
       photoUrls.join(", "),
+      serviceDetail1,
+      serviceDetail2,
     ]);
   } catch (err) {
     console.error("Sheets append failed:", err);
@@ -130,6 +134,7 @@ export async function POST(request: Request) {
       name, phone, email, location, service, shape,
       dimsSummary: formatDims(dimsJson),
       area, estimateLow, estimateHigh,
+      serviceDetail1, serviceDetail2,
     });
     await sendQuoteEmail({ to: email, name, service, estimateLow, estimateHigh, referenceNumber, pdfBuffer });
   } catch (err) {

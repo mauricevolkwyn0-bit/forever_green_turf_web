@@ -1,9 +1,5 @@
 "use client";
 
-// TODO: Add two aditionals steps after step 1, 
-// if type of lawn selected then choose type of lawn (20mm,25mm,30mm,35mm,40mm)
-// surface type (hard surface,best work) 
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import { X, Leaf, Layers, Flower2, Upload, CheckCircle, MapPin, Loader2 } from "lucide-react";
@@ -35,6 +31,9 @@ type GoogleMapsNamespace = {
 
 type ServiceType = "lawn" | "paving" | "garden";
 type ShapeId = "square" | "rectangle" | "circle" | "lshape";
+type GrassSurface = "soil" | "lawn" | "hard";
+type PavingType = "block" | "bond" | "cobblestone" | "unsure";
+type PavingRemoval = "yes" | "no";
 
 const SERVICES: { id: ServiceType; label: string; icon: typeof Leaf }[] = [
   { id: "lawn", label: "Artificial Grass", icon: Leaf },
@@ -54,6 +53,31 @@ const SHAPES: { id: ShapeId; label: string; fields: { key: string; label: string
   },
 ];
 
+const GRASS_PILE_OPTIONS: { id: string; label: string }[] = [
+  { id: "20mm", label: "20mm" },
+  { id: "25mm", label: "25mm" },
+  { id: "30mm", label: "30mm" },
+  { id: "35mm", label: "35mm" },
+];
+
+const GRASS_SURFACE_OPTIONS: { id: GrassSurface; label: string }[] = [
+  { id: "soil", label: "Soil / Bare Ground" },
+  { id: "lawn", label: "Existing Lawn" },
+  { id: "hard", label: "Existing Hard Surface (concrete/paving)" },
+];
+
+const PAVING_TYPE_OPTIONS: { id: PavingType; label: string }[] = [
+  { id: "block", label: "Block Paving" },
+  { id: "bond", label: "Bond Paving" },
+  { id: "cobblestone", label: "Cobblestone" },
+  { id: "unsure", label: "Not Sure" },
+];
+
+const PAVING_REMOVAL_OPTIONS: { id: PavingRemoval; label: string }[] = [
+  { id: "yes", label: "Yes, needs removal" },
+  { id: "no", label: "No, ground is clear" },
+];
+
 // Placeholder rates only — replace with the business's real per-square-metre
 // pricing before relying on this for actual customer-facing quotes.
 const RATE_PER_SQM: Record<ServiceType, number> = {
@@ -61,6 +85,13 @@ const RATE_PER_SQM: Record<ServiceType, number> = {
   paving: 650,
   garden: 450,
 };
+
+// Placeholder multipliers only, same caveat as RATE_PER_SQM above — thicker
+// pile / premium paving nudges the shown estimate, replace with real pricing.
+const GRASS_PILE_MULTIPLIER: Record<string, number> = { "20mm": 0.85, "25mm": 1, "30mm": 1.15, "35mm": 1.3 };
+const GRASS_SURFACE_MULTIPLIER: Record<GrassSurface, number> = { soil: 1, lawn: 1.1, hard: 0.9 };
+const PAVING_TYPE_MULTIPLIER: Record<PavingType, number> = { block: 1, bond: 1.05, cobblestone: 1.25, unsure: 1 };
+const PAVING_REMOVAL_MULTIPLIER: Record<PavingRemoval, number> = { yes: 1.15, no: 1 };
 
 function calcArea(shapeId: ShapeId, values: Record<string, string>) {
   const n = (k: string) => parseFloat(values[k]) || 0;
@@ -78,6 +109,32 @@ function ShapeIcon({ shape, color }: { shape: ShapeId; color: string }) {
   if (shape === "rectangle") return <svg {...common}><rect x="4" y="14" width="40" height="20" rx="2" /></svg>;
   if (shape === "circle") return <svg {...common}><circle cx="24" cy="24" r="18" /></svg>;
   return <svg {...common}><path d="M8 8 H24 V24 H40 V40 H8 Z" strokeLinejoin="round" /></svg>;
+}
+
+function OptionTiles<T extends string>({
+  options, value, onChange, columns = 2,
+}: { options: { id: T; label: string }[]; value: T | null; onChange: (v: T) => void; columns?: number }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: 12 }}>
+      {options.map(o => {
+        const active = value === o.id;
+        return (
+          <button
+            key={o.id}
+            onClick={() => onChange(o.id)}
+            style={{
+              padding: "18px 12px", borderRadius: 4, cursor: "pointer", textAlign: "center",
+              border: `2px solid ${active ? FOREST : "rgba(42,74,25,0.15)"}`,
+              background: active ? "rgba(107,155,42,0.1)" : "#fff",
+              fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: FOREST,
+            }}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
 }
 
 function Field({
@@ -110,15 +167,27 @@ function Field({
   );
 }
 
-const TOTAL_STEPS = 4;
-const EMAIL_STEP = TOTAL_STEPS + 1;
-const RESULT_STEP = EMAIL_STEP + 1;
+type StepKind =
+  | "service" | "grassPile" | "grassSurface" | "pavingType" | "pavingRemoval"
+  | "shape" | "dims" | "photos" | "email" | "result";
+
+function getFlowSteps(service: ServiceType | null): StepKind[] {
+  const steps: StepKind[] = ["service"];
+  if (service === "lawn") steps.push("grassPile", "grassSurface");
+  if (service === "paving") steps.push("pavingType", "pavingRemoval");
+  steps.push("shape", "dims", "photos", "email", "result");
+  return steps;
+}
 
 export default function QuoteModal() {
   const { isOpen, close } = useQuoteModal();
 
-  const [step, setStep] = useState(1);
+  const [stepIndex, setStepIndex] = useState(0);
   const [service, setService] = useState<ServiceType | null>(null);
+  const [grassPile, setGrassPile] = useState<string | null>(null);
+  const [grassSurface, setGrassSurface] = useState<GrassSurface | null>(null);
+  const [pavingType, setPavingType] = useState<PavingType | null>(null);
+  const [pavingRemoval, setPavingRemoval] = useState<PavingRemoval | null>(null);
   const [shape, setShape] = useState<ShapeId | null>(null);
   const [dims, setDims] = useState<Record<string, string>>({});
   const [photos, setPhotos] = useState<File[]>([]);
@@ -131,6 +200,11 @@ export default function QuoteModal() {
   const locationInputRef = useRef<HTMLInputElement>(null);
   const locationDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const flowSteps = useMemo(() => getFlowSteps(service), [service]);
+  const currentStep = flowSteps[stepIndex] ?? "service";
+  const countedSteps = useMemo<StepKind[]>(() => flowSteps.filter(s => s !== "email" && s !== "result"), [flowSteps]);
+  const countedIndex = countedSteps.indexOf(currentStep);
+
   function setLocation(v: string) {
     setContact(c => ({ ...c, location: v }));
     setLocationLoading(true);
@@ -140,8 +214,12 @@ export default function QuoteModal() {
 
   function handleClose() {
     close();
-    setStep(1);
+    setStepIndex(0);
     setService(null);
+    setGrassPile(null);
+    setGrassSurface(null);
+    setPavingType(null);
+    setPavingRemoval(null);
     setShape(null);
     setDims({});
     setPhotos([]);
@@ -171,7 +249,7 @@ export default function QuoteModal() {
 
   useEffect(() => {
     const input = locationInputRef.current;
-    if (!mapsReady || step !== EMAIL_STEP || !input) return;
+    if (!mapsReady || currentStep !== "email" || !input) return;
     const google = (window as unknown as { google?: GoogleMapsNamespace }).google;
     if (!google?.maps?.places) return;
 
@@ -192,7 +270,7 @@ export default function QuoteModal() {
       google.maps.event.removeListener(listener);
       google.maps.event.clearInstanceListeners(input);
     };
-  }, [mapsReady, step]);
+  }, [mapsReady, currentStep]);
 
   if (!isOpen) return null;
 
@@ -202,14 +280,23 @@ export default function QuoteModal() {
   const contactValid = contact.name.trim() !== "" && contact.phone.trim() !== "";
 
   const canNext =
-    step === 1 ? service !== null :
-    step === 2 ? shape !== null :
-    step === 3 ? dimsValid :
-    step === EMAIL_STEP ? emailValid :
+    currentStep === "service" ? service !== null :
+    currentStep === "grassPile" ? grassPile !== null :
+    currentStep === "grassSurface" ? grassSurface !== null :
+    currentStep === "pavingType" ? pavingType !== null :
+    currentStep === "pavingRemoval" ? pavingRemoval !== null :
+    currentStep === "shape" ? shape !== null :
+    currentStep === "dims" ? dimsValid :
+    currentStep === "email" ? emailValid :
     true;
 
   const area = shape ? calcArea(shape, dims) : 0;
-  const rate = service ? RATE_PER_SQM[service] : 0;
+  let rate = service ? RATE_PER_SQM[service] : 0;
+  if (service === "lawn") {
+    rate *= (grassPile ? GRASS_PILE_MULTIPLIER[grassPile] ?? 1 : 1) * (grassSurface ? GRASS_SURFACE_MULTIPLIER[grassSurface] : 1);
+  } else if (service === "paving") {
+    rate *= (pavingType ? PAVING_TYPE_MULTIPLIER[pavingType] : 1) * (pavingRemoval ? PAVING_REMOVAL_MULTIPLIER[pavingRemoval] : 1);
+  }
   const estimateLow = Math.round((area * rate * 0.85) / 50) * 50;
   const estimateHigh = Math.round((area * rate * 1.15) / 50) * 50;
 
@@ -229,6 +316,15 @@ export default function QuoteModal() {
     setSubmitting(true);
     setSubmitError(null);
     try {
+      const serviceDetail1 =
+        service === "lawn" && grassPile ? `Pile Height: ${grassPile}` :
+        service === "paving" && pavingType ? `Paving Type: ${PAVING_TYPE_OPTIONS.find(o => o.id === pavingType)?.label}` :
+        "";
+      const serviceDetail2 =
+        service === "lawn" && grassSurface ? `Surface: ${GRASS_SURFACE_OPTIONS.find(o => o.id === grassSurface)?.label}` :
+        service === "paving" && pavingRemoval ? `Existing Material Removal: ${PAVING_REMOVAL_OPTIONS.find(o => o.id === pavingRemoval)?.label}` :
+        "";
+
       const fd = new FormData();
       fd.append("name", contact.name);
       fd.append("phone", contact.phone);
@@ -240,6 +336,8 @@ export default function QuoteModal() {
       fd.append("area", area.toFixed(2));
       fd.append("estimateLow", String(estimateLow));
       fd.append("estimateHigh", String(estimateHigh));
+      fd.append("serviceDetail1", serviceDetail1);
+      fd.append("serviceDetail2", serviceDetail2);
       photos.forEach(file => fd.append("photos", file, file.name));
 
       const res = await fetch("/api/quote-request", { method: "POST", body: fd });
@@ -278,10 +376,10 @@ export default function QuoteModal() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px", borderBottom: `1px solid rgba(42,74,25,0.1)`, position: "sticky", top: 0, background: "#fff", zIndex: 1 }}>
           <div>
             <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: FOREST }}>
-              {step <= TOTAL_STEPS ? "Get a Free Quote" : step === EMAIL_STEP ? "One Last Step" : "Your Estimate"}
+              {countedIndex >= 0 ? "Get a Free Quote" : currentStep === "email" ? "One Last Step" : "Your Estimate"}
             </div>
-            {step <= TOTAL_STEPS && (
-              <div style={{ fontSize: 12, color: STONE, marginTop: 2 }}>Step {step} of {TOTAL_STEPS}</div>
+            {countedIndex >= 0 && (
+              <div style={{ fontSize: 12, color: STONE, marginTop: 2 }}>Step {countedIndex + 1} of {countedSteps.length}</div>
             )}
           </div>
           <button
@@ -294,8 +392,8 @@ export default function QuoteModal() {
         </div>
 
         <div style={{ padding: 24 }}>
-          {/* Step 1 — service type */}
-          {step === 1 && (
+          {/* Service type */}
+          {currentStep === "service" && (
             <div>
               <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>What would you like a quote for?</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
@@ -322,8 +420,42 @@ export default function QuoteModal() {
             </div>
           )}
 
-          {/* Step 2 — shape */}
-          {step === 2 && (
+          {/* Grass — pile height */}
+          {currentStep === "grassPile" && (
+            <div>
+              <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>What pile height would you like?</p>
+              <OptionTiles options={GRASS_PILE_OPTIONS} value={grassPile} onChange={setGrassPile} columns={4} />
+            </div>
+          )}
+
+          {/* Grass — current surface */}
+          {currentStep === "grassSurface" && (
+            <div>
+              <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>What&apos;s currently on the ground?</p>
+              <OptionTiles options={GRASS_SURFACE_OPTIONS} value={grassSurface} onChange={setGrassSurface} columns={1} />
+            </div>
+          )}
+
+          {/* Paving — type */}
+          {currentStep === "pavingType" && (
+            <div>
+              <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>What type of paving?</p>
+              <OptionTiles options={PAVING_TYPE_OPTIONS} value={pavingType} onChange={setPavingType} columns={2} />
+            </div>
+          )}
+
+          {/* Paving — existing material removal */}
+          {currentStep === "pavingRemoval" && (
+            <div>
+              <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>
+                Does the area have existing material (old paving, concrete, rubble) that needs removing first?
+              </p>
+              <OptionTiles options={PAVING_REMOVAL_OPTIONS} value={pavingRemoval} onChange={setPavingRemoval} columns={2} />
+            </div>
+          )}
+
+          {/* Shape */}
+          {currentStep === "shape" && (
             <div>
               <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>What shape is the area?</p>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
@@ -349,8 +481,8 @@ export default function QuoteModal() {
             </div>
           )}
 
-          {/* Step 3 — dimensions */}
-          {step === 3 && activeShape && (
+          {/* Dimensions */}
+          {currentStep === "dims" && activeShape && (
             <div>
               <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>
                 Enter the dimensions of your {activeShape.label.toLowerCase()} area, in metres.
@@ -370,8 +502,8 @@ export default function QuoteModal() {
             </div>
           )}
 
-          {/* Step 4 — photos */}
-          {step === 4 && (
+          {/* Photos */}
+          {currentStep === "photos" && (
             <div>
               <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>
                 Upload a few photos of the area (optional) this helps us give a more accurate quote.
@@ -408,8 +540,8 @@ export default function QuoteModal() {
             </div>
           )}
 
-          {/* Step 5 — email gate */}
-          {step === EMAIL_STEP && (
+          {/* Email gate */}
+          {currentStep === "email" && (
             <div>
               <p style={{ color: STONE, fontSize: 14, marginBottom: 20 }}>
                 Enter your email address to see your personalised estimate.
@@ -435,8 +567,8 @@ export default function QuoteModal() {
             </div>
           )}
 
-          {/* Step 6 — result */}
-          {step > EMAIL_STEP && service && shape && (
+          {/* Result */}
+          {currentStep === "result" && service && shape && (
             <div>
               <div style={{ background: CREAM, borderRadius: 4, padding: 20, marginBottom: 20 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.1em", textTransform: "uppercase" }}>
@@ -485,24 +617,24 @@ export default function QuoteModal() {
         </div>
 
         {/* Footer nav */}
-        {step <= EMAIL_STEP && (
+        {currentStep !== "result" && (
           <div style={{ display: "flex", justifyContent: "space-between", padding: "16px 24px", borderTop: `1px solid rgba(42,74,25,0.1)`, position: "sticky", bottom: 0, background: "#fff" }}>
             <button
-              onClick={() => setStep(s => Math.max(1, s - 1))}
-              disabled={step === 1}
-              style={{ background: "none", border: "none", color: step === 1 ? "rgba(107,98,81,0.4)" : STONE, fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, cursor: step === 1 ? "default" : "pointer", padding: "10px 4px" }}
+              onClick={() => setStepIndex(i => Math.max(0, i - 1))}
+              disabled={stepIndex === 0}
+              style={{ background: "none", border: "none", color: stepIndex === 0 ? "rgba(107,98,81,0.4)" : STONE, fontFamily: FONT_BODY, fontWeight: 500, fontSize: 14, cursor: stepIndex === 0 ? "default" : "pointer", padding: "10px 4px" }}
             >
               Back
             </button>
             <button
-              onClick={() => setStep(s => s + 1)}
+              onClick={() => setStepIndex(i => Math.min(flowSteps.length - 1, i + 1))}
               disabled={!canNext}
               style={{
                 background: canNext ? GRASS : "rgba(107,155,42,0.4)", color: "#fff", border: "none", borderRadius: 4,
                 padding: "12px 24px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, cursor: canNext ? "pointer" : "default",
               }}
             >
-              {step === TOTAL_STEPS ? "Get My Estimate" : step === EMAIL_STEP ? "See My Estimate" : "Next"}
+              {currentStep === countedSteps[countedSteps.length - 1] ? "Get My Estimate" : currentStep === "email" ? "See My Estimate" : "Next"}
             </button>
           </div>
         )}
