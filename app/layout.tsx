@@ -19,9 +19,9 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://forevergreenturf.co.za"),
-  title: "Home | ForeverGreenTurf",
+  title: "Artificial Grass & Paving Specialists in Cape Town | ForeverGreenTurf",
   description:
-    "Premium lawn installation and brick paving for homes and developments across Cape Town and nearby areas.",
+    "Artificial grass, paving and landscaping specialists serving Cape Town and surrounding areas. Professional installation, quality materials, and a workmanship guarantee.",
   manifest: "/site.webmanifest",
   icons: {
     icon: [

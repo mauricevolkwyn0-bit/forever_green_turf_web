@@ -49,7 +49,7 @@ export default async function Testimonials() {
     : FALLBACK_TESTIMONIALS;
 
   return (
-    <section style={{ background: "#fff", padding: "100px 24px", fontFamily: FONT_BODY }}>
+    <section style={{ background: "#fff", padding: "40px 24px 100px", fontFamily: FONT_BODY }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 56 }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.14em", textTransform: "uppercase" }}>Client Reviews</span>

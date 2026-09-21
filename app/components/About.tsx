@@ -3,15 +3,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock, Shield, Users, Award } from "lucide-react";
-import { FOREST, GRASS, STONE, FONT_DISPLAY, FONT_BODY, BRAND } from "./theme";
+import { FOREST, GRASS, STONE, FONT_DISPLAY, FONT_BODY, BRAND, SLOGAN } from "./theme";
+import { useInView } from "../hooks/useInView";
 
 export default function About() {
+  const { ref: photosRef, inView: photosInView } = useInView<HTMLDivElement>(0.2, true);
+
+  const photoDelay = (i: number) => ({
+    opacity: photosInView ? 1 : 0,
+    transform: photosInView ? "translateY(0)" : "translateY(24px)",
+    transition: `opacity 0.6s ease ${i * 0.15}s, transform 0.6s ease ${i * 0.15}s`,
+  });
+
   return (
     <section style={{ background: "#fff", padding: "160px 24px 100px", fontFamily: FONT_BODY }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "5fr 6fr", gap: 80, alignItems: "center" }} className="about-grid">
         {/* Photos */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, position: "relative" }}>
-          <div style={{ position: "relative", width: "100%", height: 380, borderRadius: 4, overflow: "hidden", gridRow: "1 / 3" }}>
+        <div ref={photosRef} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, position: "relative" }}>
+          <div style={{ position: "relative", width: "100%", height: 380, borderRadius: 4, overflow: "hidden", gridRow: "1 / 3", ...photoDelay(0) }}>
             <Image
               src="/images/20251101_133114.jpg"
               alt={`${BRAND} team at work`}
@@ -20,7 +29,7 @@ export default function About() {
               style={{ objectFit: "cover" }}
             />
           </div>
-          <div style={{ position: "relative", width: "100%", height: 180, borderRadius: 4, overflow: "hidden", alignSelf: "end" }}>
+          <div style={{ position: "relative", width: "100%", height: 180, borderRadius: 4, overflow: "hidden", alignSelf: "end", ...photoDelay(1) }}>
             <Image
               src="/images/20250506_144101.jpg"
               alt="Manicured garden project"
@@ -29,7 +38,7 @@ export default function About() {
               style={{ objectFit: "cover" }}
             />
           </div>
-          <div style={{ position: "relative", width: "100%", height: 180, borderRadius: 4, overflow: "hidden" }}>
+          <div style={{ position: "relative", width: "100%", height: 180, borderRadius: 4, overflow: "hidden", ...photoDelay(2) }}>
             <Image
               src="/images/paving-driveway-gate.jpg"
               alt="Garden patio design"
@@ -52,17 +61,20 @@ export default function About() {
             Built on craft.<br /><em style={{ fontStyle: "italic" }}>Grounded in quality.</em>
           </h2>
           <p style={{ color: STONE, lineHeight: 1.75, fontSize: 15, marginBottom: 16 }}>
-            {BRAND} was founded in 2012 by a landscaper who&apos;d spent a decade watching poor workmanship ruin good-intentioned outdoor spaces. The company exists because great outdoor installation isn&apos;t about speed, it&apos;s about preparation, patience, and getting the details right.
+            {BRAND} specialises in transforming outdoor spaces through quality artificial grass, paving, and landscaping solutions, serving homeowners and businesses across Cape Town and surrounding areas. Founded in 2012, the company exists because great outdoor installation isn&apos;t about speed, it&apos;s about proper preparation, patience, and getting the details right.
           </p>
-          <p style={{ color: STONE, lineHeight: 1.75, fontSize: 15, marginBottom: 36 }}>
-            Today we&apos;re a team of 18, working across Cape Town and nearby areas. Every project is managed by a senior installer, not subcontracted out.
+          <p style={{ color: STONE, lineHeight: 1.75, fontSize: 15, marginBottom: 12 }}>
+            Every project is backed by professional workmanship, quality materials, and attention to detail, from the first site visit through to the final walkthrough. Today we&apos;re a team of 18, working across residential and commercial properties. Every project is managed by a senior installer, not subcontracted out.
+          </p>
+          <p style={{ color: FOREST, lineHeight: 1.75, fontSize: 15, fontWeight: 700, fontStyle: "italic", marginBottom: 36 }}>
+            {SLOGAN}
           </p>
 
           {[
-            { icon: Shield, text: "PIRB and NHBRC registered, every job covered" },
+            { icon: Shield, text: "Residential and commercial installations" },
             { icon: Users,  text: "Full-time employed team, no day-labour subcontracting" },
             { icon: Award,  text: "5-year workmanship guarantee on all installations" },
-            { icon: Clock,  text: "Project timelines given in writing and adhered to" },
+            { icon: Clock,  text: "Reliable service, with timelines given in writing" },
           ].map(({ icon: Icon, text }, i) => (
             <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
               <div style={{ width: 28, height: 28, borderRadius: 4, background: `rgba(107,155,42,0.12)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>

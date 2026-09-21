@@ -6,6 +6,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { Phone, Mail, MapPin, CheckCircle, Send, Loader2 } from "lucide-react";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, MAPS_URL } from "./theme";
+import { useInView } from "../hooks/useInView";
 
 const ERROR_RED = "#B3261E";
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -56,6 +57,7 @@ function getRecaptchaToken(): Promise<string | null> {
 type FormState = { name: string; phone: string; email: string; location: string; service: string; message: string };
 
 export default function Contact() {
+  const { ref: photosRef, inView: photosInView } = useInView<HTMLDivElement>(0.2, true);
   const [form, setForm] = useState<FormState>({ name: "", phone: "", email: "", location: "", service: "", message: "" });
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -174,11 +176,27 @@ export default function Contact() {
           ))}
 
           {/* Photo strip */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 36 }}>
-            <Link href="/portfolio" style={{ display: "block", position: "relative", height: 140, borderRadius: 4, overflow: "hidden" }}>
+          <div ref={photosRef} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 36 }}>
+            <Link
+              href="/portfolio"
+              style={{
+                display: "block", position: "relative", height: 140, borderRadius: 4, overflow: "hidden",
+                opacity: photosInView ? 1 : 0,
+                transform: photosInView ? "translateY(0)" : "translateY(24px)",
+                transition: "opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s",
+              }}
+            >
               <Image src="/images/20260228_135947.jpg" alt="Lawn installation" fill sizes="(max-width: 768px) 50vw, 25vw" style={{ objectFit: "cover" }} />
             </Link>
-            <Link href="/portfolio" style={{ display: "block", position: "relative", height: 140, borderRadius: 4, overflow: "hidden" }}>
+            <Link
+              href="/portfolio"
+              style={{
+                display: "block", position: "relative", height: 140, borderRadius: 4, overflow: "hidden",
+                opacity: photosInView ? 1 : 0,
+                transform: photosInView ? "translateY(0)" : "translateY(24px)",
+                transition: "opacity 0.7s ease 0.55s, transform 0.7s ease 0.55s",
+              }}
+            >
               <Image src="/images/20260227_184044.jpg" alt="Paving work" fill sizes="(max-width: 768px) 50vw, 25vw" style={{ objectFit: "cover" }} />
             </Link>
           </div>
@@ -226,10 +244,9 @@ export default function Contact() {
                   style={{ width: "100%", background: "#F5F0E8", border: `1px solid rgba(42,74,25,0.15)`, borderRadius: 4, padding: "12px 14px", fontFamily: FONT_BODY, fontSize: 14, color: form.service ? FOREST : STONE, appearance: "none", cursor: "pointer" }}
                 >
                   <option value="">Select a service…</option>
-                  <option>Lawn Installation</option>
-                  <option>Brick Paving</option>
-                  <option>Driveway Paving</option>
-                  <option>Garden Design</option>
+                  <option>Artificial Grass</option>
+                  <option>Paving</option>
+                  <option>Landscaping</option>
                   <option>Multiple / Not Sure</option>
                 </select>
               </div>

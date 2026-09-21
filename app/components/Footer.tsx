@@ -4,8 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
-import { GRASS, FONT_BODY, FONT_DISPLAY, BRAND, MAPS_URL } from "./theme";
+import { GRASS, FONT_BODY, FONT_DISPLAY, BRAND, SLOGAN, MAPS_URL } from "./theme";
 import { useCookieConsent } from "./CookieConsentContext";
+
+const SERVICE_LINKS: { label: string; href: string }[] = [
+  { label: "Artificial Grass", href: "/artificial-grass" },
+  { label: "Paving", href: "/paving" },
+  { label: "Landscaping", href: "/landscaping" },
+];
 
 const COMPANY_LINKS: { label: string; href?: string }[] = [
   { label: "About Us", href: "/about" },
@@ -35,7 +41,7 @@ export default function Footer() {
               <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: "#fff" }}>{BRAND}</span>
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.7, maxWidth: 240, color: "rgba(255,255,255,0.5)" }}>
-              Premium lawn installation and paving across Cape Town and nearby areas. Built by hand. Guaranteed by name.
+              Artificial grass, paving and landscaping specialists serving Cape Town and surrounding areas. {SLOGAN}
             </p>
             <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
               {SOCIALS.map(({ label, icon: Icon, href }) => (
@@ -65,11 +71,11 @@ export default function Footer() {
           {/* Services */}
           <div>
             <div style={{ fontWeight: 600, fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>Services</div>
-            {["Artificial Grass Installation", "Brick Paving", "Driveway Paving", "Garden Design"].map(s => (
-              <div key={s} style={{ marginBottom: 10, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.55)", transition: "color 0.2s" }}
+            {SERVICE_LINKS.map(s => (
+              <Link key={s.label} href={s.href} style={{ display: "block", marginBottom: 10, fontSize: 14, cursor: "pointer", color: "rgba(255,255,255,0.55)", transition: "color 0.2s", textDecoration: "none" }}
                 onMouseEnter={e => (e.currentTarget.style.color = "#fff")}
                 onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.55)")}
-              >{s}</div>
+              >{s.label}</Link>
             ))}
           </div>
 
@@ -137,7 +143,7 @@ export default function Footer() {
             >
               Cookie Settings
             </button>
-            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>PIRB Reg. · NHBRC Member · Workmanship Guaranteed</span>
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>Workmanship Guaranteed</span>
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
+import FadeInSection from "./FadeInSection";
 
 type PortfolioTag = "lawn" | "paving" | "garden";
 type PortfolioFilter = "all" | PortfolioTag;
@@ -26,8 +27,16 @@ const FALLBACK_PORTFOLIO: PortfolioEntry[] = [
   { id: 6, tag: "garden", title: "Fourways Patio Garden",   img: "https://images.unsplash.com/photo-1771479452302-19a1849c0e25?w=600&h=400&fit=crop&auto=format" },
 ];
 
+// How many tiles render up front, and how many more load each time the
+// sentinel near the bottom of the grid scrolls into view. Keeps the initial
+// page light even if the sheet ends up with a large number of projects.
+const PAGE_SIZE = 9;
+const LOAD_STEP = 6;
+
 export default function Portfolio({ showFilters = true, items, compact = false, limit }: { showFilters?: boolean; items?: PortfolioEntry[]; compact?: boolean; limit?: number }) {
   const [filter, setFilter] = useState<PortfolioFilter>("all");
+  const [renderCount, setRenderCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const filters: { id: PortfolioFilter; label: string }[] = [
     { id: "all",    label: "All Projects" },
     { id: "lawn",   label: TAG_LABELS.lawn },
@@ -38,6 +47,28 @@ export default function Portfolio({ showFilters = true, items, compact = false, 
   const source = items ?? FALLBACK_PORTFOLIO;
   const filtered = filter === "all" ? source : source.filter(p => p.tag === filter);
   const visible = limit ? filtered.slice(0, limit) : filtered;
+  const shown = visible.slice(0, renderCount);
+  const hasMore = renderCount < visible.length;
+
+  function selectFilter(f: PortfolioFilter) {
+    setFilter(f);
+    setRenderCount(PAGE_SIZE);
+  }
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRenderCount(rc => Math.min(rc + LOAD_STEP, visible.length));
+        }
+      },
+      { rootMargin: "150px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, visible.length]);
 
   return (
     <section style={{ background: CREAM, padding: compact ? "48px 24px 100px" : "160px 24px 100px", fontFamily: FONT_BODY }}>
@@ -51,7 +82,7 @@ export default function Portfolio({ showFilters = true, items, compact = false, 
               {filters.map(f => (
                 <button
                   key={f.id}
-                  onClick={() => setFilter(f.id)}
+                  onClick={() => selectFilter(f.id)}
                   style={{
                     background: filter === f.id ? FOREST : "transparent",
                     color: filter === f.id ? "#fff" : STONE,
@@ -73,10 +104,18 @@ export default function Portfolio({ showFilters = true, items, compact = false, 
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridAutoRows: 240, gap: 16 }} className="portfolio-grid">
-          {visible.map((item, i) => (
-            <PortfolioItem key={item.id} item={item} isLarge={filter === "all" && i === 0} />
-          ))}
+          {shown.map((item, i) => {
+            const isLarge = filter === "all" && i === 0;
+            return (
+              <FadeInSection key={item.id} style={{ gridColumn: isLarge ? "span 2" : "span 1", gridRow: isLarge ? "span 2" : "span 1" }}>
+                <PortfolioItem item={item} isLarge={isLarge} />
+              </FadeInSection>
+            );
+          })}
         </div>
+
+        {/* Sentinel: crossing into view loads the next batch */}
+        {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
       </div>
       <style>{`
         @media (max-width: 768px) {
@@ -97,13 +136,12 @@ function PortfolioItem({ item, isLarge }: { item: PortfolioEntry; isLarge: boole
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        gridColumn: isLarge ? "span 2" : "span 1",
-        gridRow: isLarge ? "span 2" : "span 1",
         borderRadius: 4,
         overflow: "hidden",
         position: "relative",
         cursor: "pointer",
         background: "#2A3A1A",
+        height: "100%",
       }}
     >
       <Image

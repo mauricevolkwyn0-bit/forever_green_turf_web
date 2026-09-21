@@ -6,12 +6,12 @@ import Footer from "../components/Footer";
 export const metadata: Metadata = {
   title: "Portfolio | ForeverGreenTurf",
   description:
-    "Browse recent ForeverGreenTurf artificial grass installation, paving, and garden design projects across Cape Town and nearby areas.",
+    "Browse recent ForeverGreenTurf artificial grass, paving, and landscaping projects across Cape Town and surrounding areas.",
 };
 
 export default function PortfolioPage() {
   return (
-    <div style={{ overflowX: "hidden" }}>
+    <div style={{ overflowX: "hidden", overflowY: "hidden" }}>
       <Nav transparentOnTop={false} />
       <PortfolioSection />
       <Footer />

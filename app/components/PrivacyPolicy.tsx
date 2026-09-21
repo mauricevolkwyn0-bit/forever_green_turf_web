@@ -15,7 +15,7 @@ const SECTIONS = [
     list: [
       "Your name, phone number, and email address",
       "Your physical address or the location of the project",
-      "Details about the service you're enquiring about (e.g. lawn, paving, or garden work) and the dimensions of the area",
+      "Details about the service you're enquiring about (e.g. artificial grass, paving, or landscaping work) and the dimensions of the area",
       "Photos of your property that you choose to upload",
       "Any other information you include in a message to us",
     ],

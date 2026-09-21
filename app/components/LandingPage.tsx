@@ -1,50 +1,45 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
   ChevronRight, CheckCircle,
-  ArrowRight, Leaf, Layers, Hammer, Flower2, ChevronDown
+  ArrowRight, Leaf, Layers, Flower2, ChevronDown, MapPin
 } from "lucide-react";
-import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, scrollTo } from "./theme";
+import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, SLOGAN, scrollTo } from "./theme";
 import Nav from "./Nav";
 import Footer from "./Footer";
+import FadeInSection from "./FadeInSection";
+import FAQ from "./FAQ";
 import { useQuoteModal } from "./QuoteModalContext";
+import { useInView } from "../hooks/useInView";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const SERVICES = [
   {
-    id: "lawn",
+    id: "grass",
     icon: Leaf,
-    title: "Artificial Grass Installation",
-    desc: "Lush, level turf laid to perfection. We prepare the base, lay quality grass rolls, and leave you with a carpet-green result that lasts.",
+    title: "Artificial Grass",
+    desc: "Supply and installation, turf-only supply, ground preparation, and pet-friendly options in a range of pile heights, for residential and commercial properties.",
     img: "/images/20260912_090200.jpg",
-    tag: "lawns",
+    href: "/artificial-grass",
   },
   {
-    id: "brick",
+    id: "paving",
     icon: Layers,
-    title: "Brick Paving",
-    desc: "Handcrafted patterns in clay and concrete brick for patios, paths, courtyards, and pool surrounds that age beautifully.",
+    title: "Paving Solutions",
+    desc: "Driveways, patios, walkways, block, bond and cobblestone paving, pool surrounds, and kerbs and edging, prepared and laid to last.",
     img: "/images/brick-paving-hero-enhanced.jpg",
-    tag: "paving",
+    href: "/paving",
   },
   {
-    id: "driveway",
-    icon: Hammer,
-    title: "Driveway Paving",
-    desc: "Durable, precision-laid driveways using interlocking pavers, exposed aggregate, or cobble engineered for heavy load and kerb appeal.",
-    img: "/images/driveway-paving-hero-enhanced.jpg",
-    tag: "paving",
-  },
-  {
-    id: "garden",
+    id: "landscaping",
     icon: Flower2,
-    title: "Garden Design",
-    desc: "From concept sketch to planted finish we design and install indigenous and exotic garden beds, retaining walls, irrigation, and lighting.",
+    title: "Landscaping",
+    desc: "Garden transformations, ground preparation, irrigation, retaining blocks, and general landscaping solutions for practical outdoor improvement.",
     img: "/images/pool.jpg",
-    tag: "gardens",
+    href: "/landscaping",
   },
 ];
 
@@ -95,16 +90,16 @@ function Hero() {
             </span>
           </div>
 
-          <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(40px, 5vw, 72px)", lineHeight: 1.05, color: "#fff", marginBottom: 28, letterSpacing: "-0.02em" }}>
-            Your Outdoor
-            <br />
-            <em style={{ fontStyle: "italic", color: "#BFD98F" }}>Space,</em>
-            <br />
-            Crafted to Last.
+          <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(36px, 4.6vw, 64px)", lineHeight: 1.08, color: "#fff", marginBottom: 20, letterSpacing: "-0.02em" }}>
+            Artificial Grass <em style={{ fontStyle: "italic", color: "#BFD98F" }}>&amp; Paving</em> Specialists in Cape Town
           </h1>
 
-          <p style={{ fontFamily: FONT_BODY, fontSize: 17, color: "rgba(255,255,255,0.72)", lineHeight: 1.7, maxWidth: 420, marginBottom: 40 }}>
-            Premium lawn installation and brick paving for homes and developments across Cape Town and nearby areas, built by a team that takes pride in every square metre.
+          <p style={{ fontFamily: FONT_BODY, fontSize: 17, color: "rgba(255,255,255,0.72)", lineHeight: 1.7, maxWidth: 420, marginBottom: 16 }}>
+            Professional artificial grass, paving and landscaping solutions designed to transform your outdoor space.
+          </p>
+
+          <p style={{ fontFamily: FONT_DISPLAY, fontStyle: "italic", fontWeight: 700, fontSize: 18, color: "#BFD98F", marginBottom: 40 }}>
+            {SLOGAN}
           </p>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -128,10 +123,13 @@ function Hero() {
 
           {/* Trust badges */}
           <div style={{ display: "flex", gap: 20, marginTop: 48, flexWrap: "wrap" }}>
-            {["PIRB Registered", "NHBRC Member", "Workmanship Guarantee"].map(badge => (
-              <div key={badge} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <CheckCircle size={14} color={GRASS} />
-                <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{badge}</span>
+            {[
+              { icon: MapPin, text: "Serving Cape Town & Surrounding Areas" },
+              { icon: CheckCircle, text: "Workmanship Guarantee" },
+            ].map(({ icon: Icon, text }) => (
+              <div key={text} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Icon size={14} color={GRASS} />
+                <span style={{ fontFamily: FONT_BODY, fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{text}</span>
               </div>
             ))}
           </div>
@@ -155,29 +153,6 @@ function Hero() {
 
 // ─── Stats Bar ────────────────────────────────────────────────────────────────
 const STATS_ANIMATION_DURATION = 1800;
-
-function useInView<T extends HTMLElement>(threshold = 0.4) {
-  const ref = useRef<T>(null);
-  const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  return { ref, inView };
-}
 
 // Counts up from 0 to `target` over a fixed duration shared by every stat, so
 // a big number (500) climbs in larger increments than a small one (5) but
@@ -245,16 +220,16 @@ function Services() {
           <div>
             <span style={{ fontSize: 12, fontWeight: 600, color: GRASS, letterSpacing: "0.14em", textTransform: "uppercase" }}>What We Do</span>
             <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: "clamp(32px, 4vw, 52px)", color: FOREST, marginTop: 12, lineHeight: 1.1, letterSpacing: "-0.02em" }}>
-              Four services,<br /><em style={{ fontStyle: "italic" }}>one standard.</em>
+              Three services,<br /><em style={{ fontStyle: "italic" }}>one standard.</em>
             </h2>
           </div>
           <p style={{ color: STONE, lineHeight: 1.7, fontSize: 16, maxWidth: 460 }}>
-            Whether you need a new lawn, a paved driveway, or a complete garden transformation, we bring the same level of care and craft to every project, regardless of size.
+            Whether you need artificial grass, a paved driveway, or a complete landscaping solution, we bring the same level of care and craft to every project, regardless of size.
           </p>
         </div>
 
         {/* Cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24 }} className="services-grid">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }} className="services-grid">
           {SERVICES.map(s => (
             <ServiceCard key={s.id} service={s} />
           ))}
@@ -274,7 +249,7 @@ function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
   const Icon = service.icon;
   return (
     <Link
-      href="/contact"
+      href={service.href}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -307,7 +282,7 @@ function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
         <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 20, color: FOREST, marginBottom: 10, letterSpacing: "-0.01em" }}>{service.title}</h3>
         <p style={{ fontSize: 14, color: STONE, lineHeight: 1.65 }}>{service.desc}</p>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 18, color: GRASS, fontSize: 13, fontWeight: 600 }}>
-          Get a Quote <ChevronRight size={14} />
+          Learn More <ChevronRight size={14} />
         </div>
       </div>
     </Link>
@@ -316,6 +291,8 @@ function ServiceCard({ service }: { service: typeof SERVICES[0] }) {
 
 // ─── Process ─────────────────────────────────────────────────────────────────
 function Process() {
+  const { ref: stepsRef, inView: stepsInView } = useInView<HTMLDivElement>(0.2, true);
+
   return (
     <section id="process" style={{
       background: FOREST,
@@ -337,9 +314,20 @@ function Process() {
           </h2>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0 }} className="process-grid">
+        <div ref={stepsRef} style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0 }} className="process-grid">
           {STEPS.map((step, i) => (
-            <div key={step.num} style={{ padding: "0 32px 32px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.08)" : "none", position: "relative" }} className="process-cell">
+            <div
+              key={step.num}
+              style={{
+                padding: "0 32px 32px",
+                borderRight: i < 3 ? "1px solid rgba(255,255,255,0.08)" : "none",
+                position: "relative",
+                opacity: stepsInView ? 1 : 0,
+                transform: stepsInView ? "translateY(0)" : "translateY(24px)",
+                transition: `opacity 0.6s ease ${i * 0.15}s, transform 0.6s ease ${i * 0.15}s`,
+              }}
+              className="process-cell"
+            >
               {/* Connector line */}
               {i < 3 && (
                 <div style={{ position: "absolute", top: 24, right: -1, width: 32, height: 1, background: "rgba(107,155,42,0.4)" }} className="connector-line" />
@@ -379,15 +367,16 @@ function Process() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function LandingPage({ testimonials, portfolio }: { testimonials: React.ReactNode; portfolio: React.ReactNode }) {
   return (
-    <div style={{ fontFamily: FONT_BODY, overflowX: "hidden" }}>
+    <div style={{ fontFamily: FONT_BODY, overflowX: "hidden", overflowY: "hidden" }}>
       <Nav />
       <Hero />
-      <StatsBar />
-      <Services />
-      {portfolio}
-      <Process />
-      {testimonials}
-      <Footer />
+      <FadeInSection><StatsBar /></FadeInSection>
+      <FadeInSection><Services /></FadeInSection>
+      <FadeInSection>{portfolio}</FadeInSection>
+      <FadeInSection><Process /></FadeInSection>
+      <FadeInSection><FAQ /></FadeInSection>
+      <FadeInSection>{testimonials}</FadeInSection>
+      <FadeInSection><Footer /></FadeInSection>
     </div>
   );
 }
