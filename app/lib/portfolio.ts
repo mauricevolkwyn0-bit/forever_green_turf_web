@@ -15,19 +15,20 @@ async function fetchPortfolioItems(): Promise<PortfolioEntry[] | null> {
     const tab = process.env.GOOGLE_SHEETS_PORTFOLIO_SHEET_NAME || "Portfolio";
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: resolveSpreadsheetId(),
-      range: `${tab}!A2:D500`,
+      range: `${tab}!A2:E500`,
     });
 
     const rows = res.data.values ?? [];
     const items: PortfolioEntry[] = [];
     rows.forEach((row, i) => {
-      const [title, rawTag, image, rawPileHeight] = row as (string | undefined)[];
+      const [title, rawTag, image, rawPileHeight, rawPavingType] = row as (string | undefined)[];
       const tag = rawTag?.trim().toLowerCase();
       if (!title?.trim() || !image?.trim() || !tag || !VALID_TAGS.has(tag)) return;
       const key = image.trim().replace(/^\/+/, "");
       const img = /^https?:\/\//i.test(key) ? key : `https://storage.googleapis.com/${bucket}/${key}`;
       const pileHeight = tag === "lawn" ? rawPileHeight?.trim() || undefined : undefined;
-      items.push({ id: `sheet-${i}`, tag: tag as PortfolioEntry["tag"], title: title.trim(), img, pileHeight });
+      const pavingType = tag === "paving" ? rawPavingType?.trim() || undefined : undefined;
+      items.push({ id: `sheet-${i}`, tag: tag as PortfolioEntry["tag"], title: title.trim(), img, pileHeight, pavingType });
     });
 
     return items.length ? items : null;
@@ -49,6 +50,9 @@ async function fetchPortfolioItems(): Promise<PortfolioEntry[] | null> {
 //                       options on /artificial-grass so that page can deep-link
 //                       into a pre-filtered portfolio view. Left blank for
 //                       paving/garden rows.
+//   E: Paving Type     paving rows only, e.g. "Block Paving" — matches the
+//                       paving type options on /paving for the same deep-link
+//                       behavior. Left blank for lawn/garden rows.
 // Returns null (caller falls back to placeholder projects) whenever the
 // sheet isn't configured, has no valid rows, or the fetch fails.
 //

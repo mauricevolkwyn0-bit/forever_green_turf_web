@@ -20,11 +20,12 @@ export default async function PortfolioPage({
   const rawCategory = typeof params.category === "string" ? params.category : undefined;
   const initialFilter = rawCategory && VALID_CATEGORIES.has(rawCategory) ? (rawCategory as "lawn" | "paving" | "garden") : undefined;
   const initialPileHeight = typeof params.pileHeight === "string" ? params.pileHeight : undefined;
+  const initialPavingType = typeof params.pavingType === "string" ? params.pavingType : undefined;
 
   return (
     <div style={{ overflowX: "hidden", overflowY: "hidden" }}>
       <Nav transparentOnTop={false} />
-      <PortfolioSection initialFilter={initialFilter} initialPileHeight={initialPileHeight} />
+      <PortfolioSection initialFilter={initialFilter} initialPileHeight={initialPileHeight} initialPavingType={initialPavingType} />
       <Footer />
     </div>
   );

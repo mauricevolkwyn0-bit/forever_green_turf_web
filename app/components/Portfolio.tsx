@@ -8,7 +8,14 @@ import FadeInSection from "./FadeInSection";
 type PortfolioTag = "lawn" | "paving" | "garden";
 type PortfolioFilter = "all" | PortfolioTag;
 
-export type PortfolioEntry = { id: string | number; tag: PortfolioTag; title: string; img: string; pileHeight?: string };
+export type PortfolioEntry = { id: string | number; tag: PortfolioTag; title: string; img: string; pileHeight?: string; pavingType?: string };
+
+// Canonical form for matching paving type names regardless of exact wording
+// ("Block Paving" vs "Block" vs "block paving") between the sheet and the
+// ?pavingType= link param — strips "paving" and any non-letters, lowercases.
+export function normalizePavingType(v?: string) {
+  return v?.toLowerCase().replace(/paving/g, "").replace(/[^a-z0-9]/g, "") || undefined;
+}
 
 const TAG_LABELS: Record<PortfolioTag, string> = {
   lawn: "Artificial Grass",
@@ -34,15 +41,17 @@ const PAGE_SIZE = 9;
 const LOAD_STEP = 6;
 
 export default function Portfolio({
-  showFilters = true, items, compact = false, limit, initialFilter, initialPileHeight,
+  showFilters = true, items, compact = false, limit, initialFilter, initialPileHeight, initialPavingType,
 }: {
   showFilters?: boolean; items?: PortfolioEntry[]; compact?: boolean; limit?: number;
-  initialFilter?: PortfolioFilter; initialPileHeight?: string;
+  initialFilter?: PortfolioFilter; initialPileHeight?: string; initialPavingType?: string;
 }) {
   const [filter, setFilter] = useState<PortfolioFilter>(initialFilter ?? "all");
-  // One-time deep-link preset from e.g. /portfolio?category=lawn&pileHeight=20mm —
-  // cleared as soon as the visitor touches a filter button themselves.
+  // One-time deep-link presets from e.g. /portfolio?category=lawn&pileHeight=20mm
+  // or ?category=paving&pavingType=block — cleared as soon as the visitor
+  // touches a filter button themselves.
   const [pileHeight, setPileHeight] = useState<string | undefined>(initialPileHeight);
+  const [pavingType, setPavingType] = useState<string | undefined>(initialPavingType);
   const [renderCount, setRenderCount] = useState(PAGE_SIZE);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const filters: { id: PortfolioFilter; label: string }[] = [
@@ -56,8 +65,10 @@ export default function Portfolio({
   // Sheet values and the ?pileHeight= link param can both be written with or
   // without the "mm" suffix (e.g. "20" vs "20mm") — compare on digits only.
   const normalizedPileHeight = pileHeight?.replace(/\D/g, "") || undefined;
+  const normalizedPavingType = normalizePavingType(pavingType);
   const filtered = (filter === "all" ? source : source.filter(p => p.tag === filter))
-    .filter(p => !normalizedPileHeight || p.pileHeight?.replace(/\D/g, "") === normalizedPileHeight);
+    .filter(p => !normalizedPileHeight || p.pileHeight?.replace(/\D/g, "") === normalizedPileHeight)
+    .filter(p => !normalizedPavingType || normalizePavingType(p.pavingType) === normalizedPavingType);
   const visible = limit ? filtered.slice(0, limit) : filtered;
   const shown = visible.slice(0, renderCount);
   const hasMore = renderCount < visible.length;
@@ -65,6 +76,7 @@ export default function Portfolio({
   function selectFilter(f: PortfolioFilter) {
     setFilter(f);
     setPileHeight(undefined);
+    setPavingType(undefined);
     setRenderCount(PAGE_SIZE);
   }
 
