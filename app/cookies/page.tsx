@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function CookiesPage() {
   return (
-    <div style={{ overflowX: "hidden" }}>
+    <div style={{ overflowX: "hidden", overflowY: "hidden" }}>
       <Nav transparentOnTop={false} />
       <CookiePolicy />
       <Footer />
