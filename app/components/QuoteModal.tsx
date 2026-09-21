@@ -32,7 +32,7 @@ type GoogleMapsNamespace = {
 type ServiceType = "lawn" | "paving" | "garden";
 type ShapeId = "square" | "rectangle" | "circle" | "lshape";
 type GrassSurface = "soil" | "lawn" | "hard";
-type PavingType = "block" | "bond" | "cobblestone" | "unsure";
+type PavingType = "cementBond" | "block" | "cobblestone" | "wheatstone";
 type PavingRemoval = "yes" | "no";
 
 const SERVICES: { id: ServiceType; label: string; icon: typeof Leaf }[] = [
@@ -67,10 +67,10 @@ const GRASS_SURFACE_OPTIONS: { id: GrassSurface; label: string }[] = [
 ];
 
 const PAVING_TYPE_OPTIONS: { id: PavingType; label: string }[] = [
+  { id: "cementBond", label: "Cement Bond Paving" },
   { id: "block", label: "Block Paving" },
-  { id: "bond", label: "Bond Paving" },
-  { id: "cobblestone", label: "Cobblestone" },
-  { id: "unsure", label: "Not Sure" },
+  { id: "cobblestone", label: "Cobblestone Paving" },
+  { id: "wheatstone", label: "Wheatstone Paving" },
 ];
 
 const PAVING_REMOVAL_OPTIONS: { id: PavingRemoval; label: string }[] = [
@@ -78,20 +78,21 @@ const PAVING_REMOVAL_OPTIONS: { id: PavingRemoval; label: string }[] = [
   { id: "no", label: "No, ground is clear" },
 ];
 
-// Placeholder rates only — replace with the business's real per-square-metre
-// pricing before relying on this for actual customer-facing quotes.
-const RATE_PER_SQM: Record<ServiceType, number> = {
-  lawn: 180,
-  paving: 650,
-  garden: 450,
-};
+// Real per-square-metre pricing, as given by the business (2026-09). Grass
+// and paving are priced as material rate + labour rate (added together, not
+// multiplied) — Landscaping has no client-provided rate yet, so it keeps a
+// placeholder until that's confirmed.
+const GARDEN_RATE_PER_SQM = 450; // Placeholder — no client pricing given yet.
 
-// Placeholder multipliers only, same caveat as RATE_PER_SQM above — thicker
-// pile / premium paving nudges the shown estimate, replace with real pricing.
-const GRASS_PILE_MULTIPLIER: Record<string, number> = { "20mm": 0.85, "25mm": 1, "30mm": 1.15, "35mm": 1.3 };
-const GRASS_SURFACE_MULTIPLIER: Record<GrassSurface, number> = { soil: 1, lawn: 1.1, hard: 0.9 };
-const PAVING_TYPE_MULTIPLIER: Record<PavingType, number> = { block: 1, bond: 1.05, cobblestone: 1.25, unsure: 1 };
-const PAVING_REMOVAL_MULTIPLIER: Record<PavingRemoval, number> = { yes: 1.15, no: 1 };
+const GRASS_PILE_RATE: Record<string, number> = { "20mm": 180, "25mm": 250, "30mm": 300, "35mm": 350 };
+// "Hard surface" = laying over existing hard surface (less prep); "soil"/
+// "lawn" both need full base work, per the business's "Base work" rate.
+const GRASS_LABOUR_RATE: Record<GrassSurface, number> = { hard: 100, soil: 150, lawn: 150 };
+
+const PAVING_TYPE_RATE: Record<PavingType, number> = { cementBond: 300, block: 450, cobblestone: 450, wheatstone: 500 };
+const PAVING_LABOUR_RATE_PER_SQM = 180;
+// No removal surcharge given by the business yet — recorded for their
+// reference (serviceDetail2) but doesn't change the shown estimate.
 
 function calcArea(shapeId: ShapeId, values: Record<string, string>) {
   const n = (k: string) => parseFloat(values[k]) || 0;
@@ -291,11 +292,13 @@ export default function QuoteModal() {
     true;
 
   const area = shape ? calcArea(shape, dims) : 0;
-  let rate = service ? RATE_PER_SQM[service] : 0;
+  let rate = 0;
   if (service === "lawn") {
-    rate *= (grassPile ? GRASS_PILE_MULTIPLIER[grassPile] ?? 1 : 1) * (grassSurface ? GRASS_SURFACE_MULTIPLIER[grassSurface] : 1);
+    rate = (grassPile ? GRASS_PILE_RATE[grassPile] ?? 0 : 0) + (grassSurface ? GRASS_LABOUR_RATE[grassSurface] : 0);
   } else if (service === "paving") {
-    rate *= (pavingType ? PAVING_TYPE_MULTIPLIER[pavingType] : 1) * (pavingRemoval ? PAVING_REMOVAL_MULTIPLIER[pavingRemoval] : 1);
+    rate = (pavingType ? PAVING_TYPE_RATE[pavingType] : 0) + PAVING_LABOUR_RATE_PER_SQM;
+  } else if (service === "garden") {
+    rate = GARDEN_RATE_PER_SQM;
   }
   const estimateLow = Math.round((area * rate * 0.85) / 50) * 50;
   const estimateHigh = Math.round((area * rate * 1.15) / 50) * 50;
