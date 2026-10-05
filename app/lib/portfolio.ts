@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getSheetsClient, hasServiceAccountCredentials, resolveSpreadsheetId } from "./googleAuth";
 import type { PortfolioEntry } from "../components/Portfolio";
 
-const VALID_TAGS = new Set(["lawn", "paving", "garden"]);
+const VALID_TAGS = new Set(["lawn", "paving"]);
 
 async function fetchPortfolioItems(): Promise<PortfolioEntry[] | null> {
   const bucket = process.env.GCS_BUCKET_NAME;
@@ -43,16 +43,16 @@ async function fetchPortfolioItems(): Promise<PortfolioEntry[] | null> {
 // remove projects without a code deploy. Expected columns (row 1 is a header,
 // data starts at row 2):
 //   A: Title           e.g. "Sandton Residential"
-//   B: Category        "lawn", "paving", or "garden"
+//   B: Category        "lawn" or "paving"
 //   C: Image           object path in the GCS_BUCKET_NAME bucket, e.g.
 //                       "portfolio/sandton-1.jpg" (or a full https:// URL)
 //   D: Pile Height     lawn rows only, e.g. "20mm" — matches the pile height
 //                       options on /artificial-grass so that page can deep-link
 //                       into a pre-filtered portfolio view. Left blank for
-//                       paving/garden rows.
+//                       paving rows.
 //   E: Paving Type     paving rows only, e.g. "Block Paving" — matches the
 //                       paving type options on /paving for the same deep-link
-//                       behavior. Left blank for lawn/garden rows.
+//                       behavior. Left blank for lawn rows.
 // Returns null (caller falls back to placeholder projects) whenever the
 // sheet isn't configured, has no valid rows, or the fetch fails.
 //

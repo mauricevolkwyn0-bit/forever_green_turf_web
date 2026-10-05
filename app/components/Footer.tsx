@@ -10,7 +10,6 @@ import { useCookieConsent } from "./CookieConsentContext";
 const SERVICE_LINKS: { label: string; href: string }[] = [
   { label: "Artificial Grass", href: "/artificial-grass" },
   { label: "Paving", href: "/paving" },
-  { label: "Landscaping", href: "/landscaping" },
 ];
 
 const COMPANY_LINKS: { label: string; href?: string }[] = [

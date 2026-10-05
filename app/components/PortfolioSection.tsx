@@ -5,7 +5,7 @@ export default async function PortfolioSection({
   showFilters = true, compact = false, limit, initialFilter, initialPileHeight, initialPavingType,
 }: {
   showFilters?: boolean; compact?: boolean; limit?: number;
-  initialFilter?: "all" | "lawn" | "paving" | "garden"; initialPileHeight?: string; initialPavingType?: string;
+  initialFilter?: "all" | "lawn" | "paving"; initialPileHeight?: string; initialPavingType?: string;
 }) {
   const items = await getPortfolioItems();
   return (

@@ -24,7 +24,6 @@ const HOME_MENU = [
 const SERVICE_PAGES = [
   { label: "Artificial Grass", href: "/artificial-grass", desc: "Supply, installation & pet-friendly options" },
   { label: "Paving", href: "/paving", desc: "Driveways, patios, walkways & more" },
-  { label: "Landscaping", href: "/landscaping", desc: "Garden transformations, irrigation & more" },
 ];
 
 export default function Nav({ transparentOnTop = true }: { transparentOnTop?: boolean }) {
@@ -128,7 +127,7 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
           </div>
 
           {/* Services — same hover-mega-menu pattern as "Home" above, but for
-              the three dedicated service pages. */}
+              the dedicated service pages. */}
           <div
             onMouseEnter={() => setServicesMenuOpen(true)}
             onMouseLeave={() => setServicesMenuOpen(false)}
