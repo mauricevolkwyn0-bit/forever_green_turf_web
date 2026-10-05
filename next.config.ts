@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    // Bypasses Vercel's metered Image Optimization — see app/lib/imageLoader.ts.
+    loader: "custom",
+    loaderFile: "./app/lib/imageLoader.ts",
     remotePatterns: [
       { protocol: "https", hostname: "storage.googleapis.com", pathname: "/forever_green_images/**" },
       { protocol: "https", hostname: "images.unsplash.com" },
