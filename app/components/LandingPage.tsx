@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ChevronRight, CheckCircle,
-  ArrowRight, Leaf, Layers, Flower2, ChevronDown, MapPin
+  ArrowRight, Leaf, Layers, Blocks, ChevronDown, MapPin
 } from "lucide-react";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, SLOGAN, scrollTo, CONTACT_FORM_HREF } from "./theme";
 import Nav from "./Nav";
@@ -34,12 +34,12 @@ const SERVICES = [
     href: "/paving",
   },
   {
-    id: "landscaping",
-    icon: Flower2,
-    title: "Landscaping",
-    desc: "Garden transformations, ground preparation, irrigation, retaining blocks, and general landscaping solutions for practical outdoor improvement.",
-    img: "/images/pool.jpg",
-    href: "/landscaping",
+    id: "cement-block",
+    icon: Blocks,
+    title: "Cement Block",
+    desc: "Cement block paving for driveways, patios, walkways, and other outdoor spaces.",
+    img: "/images/20241015_185008.jpg",
+    href: "/paving",
   },
 ];
 
@@ -224,7 +224,7 @@ function Services() {
             </h2>
           </div>
           <p style={{ color: STONE, lineHeight: 1.7, fontSize: 16, maxWidth: 460 }}>
-            Whether you need artificial grass, a paved driveway, or a complete landscaping solution, we bring the same level of care and craft to every project, regardless of size.
+            Whether you need artificial grass, a paved driveway, or cement block paving, we bring the same level of care and craft to every project, regardless of size.
           </p>
         </div>
 
