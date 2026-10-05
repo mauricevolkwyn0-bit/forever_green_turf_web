@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { ArrowRight, type LucideIcon } from "lucide-react";
-import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
-import { useQuoteModal } from "./QuoteModalContext";
+import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, CONTACT_FORM_HREF } from "./theme";
+import { useRouter } from "next/navigation";
 import { useInView } from "../hooks/useInView";
 
 // Shared building blocks for the dedicated service pages (Artificial Grass,
 // Paving, Landscaping) — same hero/feature-grid/CTA shape, different content.
 
 export function ServiceHero({ eyebrow, title, intro }: { eyebrow: string; title: string; intro: string }) {
-  const { open: openQuoteModal } = useQuoteModal();
+  const router = useRouter();
   return (
     <section style={{
       background: FOREST,
@@ -34,7 +34,7 @@ export function ServiceHero({ eyebrow, title, intro }: { eyebrow: string; title:
         <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 17, lineHeight: 1.7, marginBottom: 36 }}>{intro}</p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <button
-            onClick={openQuoteModal}
+            onClick={() => router.push(CONTACT_FORM_HREF)}
             style={{ background: GRASS, color: "#fff", border: "none", borderRadius: 4, padding: "14px 28px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "background 0.2s" }}
             onMouseEnter={e => (e.currentTarget.style.background = "#5a8420")}
             onMouseLeave={e => (e.currentTarget.style.background = GRASS)}
@@ -109,7 +109,7 @@ export function ServiceNote({ text }: { text: string }) {
 }
 
 export function ServiceCTA({ text }: { text: string }) {
-  const { open: openQuoteModal } = useQuoteModal();
+  const router = useRouter();
   return (
     <section style={{
       background: FOREST,
@@ -129,7 +129,7 @@ export function ServiceCTA({ text }: { text: string }) {
         {text}
       </p>
       <button
-        onClick={openQuoteModal}
+        onClick={() => router.push(CONTACT_FORM_HREF)}
         style={{ position: "relative", background: GRASS, color: "#fff", border: "none", borderRadius: 4, padding: "16px 36px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, transition: "background 0.2s" }}
         onMouseEnter={e => (e.currentTarget.style.background = "#5a8420")}
         onMouseLeave={e => (e.currentTarget.style.background = GRASS)}

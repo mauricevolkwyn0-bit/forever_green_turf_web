@@ -203,7 +203,7 @@ export default function Contact() {
         </div>
 
         {/* Right — form */}
-        <div style={{ background: "#fff", borderRadius: 4, padding: "40px", border: `1px solid rgba(42,74,25,0.1)`, boxShadow: "0 4px 24px rgba(42,74,25,0.06)" }}>
+        <div id="contact-form" style={{ background: "#fff", borderRadius: 4, padding: "40px", border: `1px solid rgba(42,74,25,0.1)`, boxShadow: "0 4px 24px rgba(42,74,25,0.06)", scrollMarginTop: 96 }}>
           {sent ? (
             <div style={{ textAlign: "center", padding: "32px 0" }}>
               <CheckCircle size={48} color={GRASS} style={{ margin: "0 auto 20px" }} />

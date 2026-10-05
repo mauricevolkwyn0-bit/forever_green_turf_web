@@ -7,12 +7,12 @@ import {
   ChevronRight, CheckCircle,
   ArrowRight, Leaf, Layers, Flower2, ChevronDown, MapPin
 } from "lucide-react";
-import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, SLOGAN, scrollTo } from "./theme";
+import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, SLOGAN, scrollTo, CONTACT_FORM_HREF } from "./theme";
 import Nav from "./Nav";
 import Footer from "./Footer";
 import FadeInSection from "./FadeInSection";
 import FAQ from "./FAQ";
-import { useQuoteModal } from "./QuoteModalContext";
+import { useRouter } from "next/navigation";
 import { useInView } from "../hooks/useInView";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ const STEPS = [
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
-  const { open: openQuoteModal } = useQuoteModal();
+  const router = useRouter();
   return (
     <section id="main" style={{
       background: FOREST,
@@ -104,7 +104,7 @@ function Hero() {
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             <button
-              onClick={openQuoteModal}
+              onClick={() => router.push(CONTACT_FORM_HREF)}
               style={{ background: GRASS, color: "#fff", border: "none", borderRadius: 4, padding: "14px 28px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "background 0.2s" }}
               onMouseEnter={e => (e.currentTarget.style.background = "#5a8420")}
               onMouseLeave={e => (e.currentTarget.style.background = GRASS)}

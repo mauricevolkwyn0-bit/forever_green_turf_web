@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, Phone, ChevronDown } from "lucide-react";
-import { FOREST, GRASS, CREAM, STONE, FONT_BODY, FONT_DISPLAY, BRAND } from "./theme";
-import { useQuoteModal } from "./QuoteModalContext";
+import { FOREST, GRASS, CREAM, STONE, FONT_BODY, FONT_DISPLAY, BRAND, CONTACT_FORM_HREF } from "./theme";
+import { useRouter } from "next/navigation";
 
 const NAV_HEIGHT = 72;
 
@@ -31,7 +31,7 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
   const [open, setOpen] = useState(false);
   const [homeMenuOpen, setHomeMenuOpen] = useState(false);
   const [servicesMenuOpen, setServicesMenuOpen] = useState(false);
-  const { open: openQuoteModal } = useQuoteModal();
+  const router = useRouter();
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
@@ -206,7 +206,7 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
             081 412 5540
           </a>
           <button
-            onClick={openQuoteModal}
+            onClick={() => router.push(CONTACT_FORM_HREF)}
             style={{ background: GRASS, color: "#fff", border: "none", borderRadius: 4, padding: "10px 20px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "background 0.2s" }}
             onMouseEnter={e => (e.currentTarget.style.background = FOREST)}
             onMouseLeave={e => (e.currentTarget.style.background = GRASS)}
@@ -271,7 +271,7 @@ export default function Nav({ transparentOnTop = true }: { transparentOnTop?: bo
             </Link>
           ))}
           <button
-            onClick={() => { setOpen(false); openQuoteModal(); }}
+            onClick={() => { setOpen(false); router.push(CONTACT_FORM_HREF); }}
             style={{ display: "block", marginTop: 16, width: "100%", textAlign: "center", background: FOREST, color: "#fff", border: "none", borderRadius: 4, padding: "14px 20px", fontFamily: FONT_BODY, fontWeight: 600, fontSize: 15, cursor: "pointer", boxSizing: "border-box" }}
           >
             Get a Free Quote
