@@ -3,16 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Car, Square, Footprints, Grid3x3, SquareStack, Waves, Ruler, Shovel, Trash2 } from "lucide-react";
-import { FOREST, GRASS, FONT_DISPLAY, FONT_BODY, SLOGAN } from "./theme";
+import { FOREST, GRASS, STONE, FONT_DISPLAY, FONT_BODY, SLOGAN } from "./theme";
 import { ServiceHero, FeatureGrid, ServiceNote, ServiceCTA } from "./ServicePageSections";
 import FadeInSection from "./FadeInSection";
 import { normalizePavingType } from "./Portfolio";
 
 const PAVING_TYPES = [
-  { label: "Cement Bond Paving", image: "paving-block.jpg" },
-  { label: "Block Paving", image: "paving-cement-bond.jpg" },
-  { label: "Cobblestone Paving", image: "paving-cobblestone.jpg" },
-  { label: "Wheatstone Paving", image: "paving-wheatstone.jpg" },
+  { label: "Cement Bond Paving", image: "paving-block.jpg", summary: "Strong, practical and cost-effective, with a clean, timeless finish for driveways, walkways and patios." },
+  { label: "Block Paving", image: "paving-cement-bond.jpg", summary: "Durable and versatile in a range of popular sizes, with a clean, modern finish for homes and businesses." },
+  { label: "Cobblestone Paving", image: "paving-cobblestone.jpg", summary: "A timeless, elegant look on a strong surface. Ideal for driveways, pool surrounds and decorative borders." },
+  { label: "Wheatstone Paving", image: "paving-wheatstone.jpg", summary: "A classic, natural-looking finish that adds character to driveways, patios and courtyards." },
 ];
 
 const FEATURES = [
@@ -62,6 +62,7 @@ export default function Paving() {
                   </div>
                   <div style={{ padding: "16px 12px" }}>
                     <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 16, color: FOREST, lineHeight: 1.3 }}>{t.label}</div>
+                    <p style={{ fontSize: 13, lineHeight: 1.5, color: STONE, marginTop: 10, marginBottom: 0 }}>{t.summary}</p>
                   </div>
                 </Link>
               ))}
