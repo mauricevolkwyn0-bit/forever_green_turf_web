@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY } from "./theme";
+import { Check } from "lucide-react";
 import FadeInSection from "./FadeInSection";
+import { PILE_HEIGHT_INFO } from "./pileHeightInfo";
 
 type PortfolioTag = "lawn" | "paving";
 type PortfolioFilter = "all" | PortfolioTag;
@@ -62,6 +64,7 @@ export default function Portfolio({
   // without the "mm" suffix (e.g. "20" vs "20mm") — compare on digits only.
   const normalizedPileHeight = pileHeight?.replace(/\D/g, "") || undefined;
   const normalizedPavingType = normalizePavingType(pavingType);
+  const pileInfo = filter === "lawn" && normalizedPileHeight ? PILE_HEIGHT_INFO[normalizedPileHeight] : undefined;
   const filtered = (filter === "all" ? source : source.filter(p => p.tag === filter))
     .filter(p => !normalizedPileHeight || p.pileHeight?.replace(/\D/g, "") === normalizedPileHeight)
     .filter(p => !normalizedPavingType || normalizePavingType(p.pavingType) === normalizedPavingType);
@@ -122,6 +125,20 @@ export default function Portfolio({
               ))}
             </div>
           )}
+          {pileInfo && (
+            <div style={{ maxWidth: 820, margin: "32px auto 0", background: "#fff", border: "1px solid rgba(42,74,25,0.15)", borderRadius: 6, padding: "28px 32px", textAlign: "left" }}>
+              <h3 style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 24, color: FOREST, margin: 0 }}>{pileInfo.title}</h3>
+              <p style={{ fontSize: 15, lineHeight: 1.65, color: STONE, marginTop: 12, marginBottom: 0 }}>{pileInfo.description}</p>
+              <ul style={{ listStyle: "none", padding: 0, margin: "20px 0 0", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px 24px" }} className="pile-info-list">
+                {pileInfo.features.map(f => (
+                  <li key={f} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 14, lineHeight: 1.5, color: FOREST }}>
+                    <Check size={16} color={GRASS} style={{ flexShrink: 0, marginTop: 3 }} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridAutoRows: 240, gap: 16 }} className="portfolio-grid">
@@ -143,6 +160,7 @@ export default function Portfolio({
           .portfolio-grid { grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 180px !important; }
         }
         @media (max-width: 500px) {
+          .pile-info-list { grid-template-columns: 1fr !important; }
           .portfolio-grid { grid-template-columns: 1fr !important; grid-auto-rows: 220px !important; }
         }
       `}</style>
