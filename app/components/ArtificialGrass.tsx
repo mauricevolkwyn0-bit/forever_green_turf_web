@@ -9,7 +9,12 @@ import { FOREST, GRASS, STONE, FONT_DISPLAY, FONT_BODY, SLOGAN } from "./theme";
 import { ServiceHero, FeatureGrid, ServiceNote, ServiceCTA } from "./ServicePageSections";
 import FadeInSection from "./FadeInSection";
 
-const PILE_HEIGHTS = ["20mm", "25mm", "30mm", "35mm"];
+const PILE_HEIGHTS = [
+  { h: "20mm", label: "Eco Pile Height", summary: "Durable, low-maintenance and cost-effective. Ideal for gardens, patios, balconies and walkways." },
+  { h: "25mm", label: "Pile Height", summary: "A fuller, softer finish than shorter piles. Ideal for gardens, entertainment areas, patios and balconies." },
+  { h: "30mm", label: "Pile Height", summary: "Lush and soft underfoot, built for everyday use. Great for gardens, family areas and entertainment spaces." },
+  { h: "35mm", label: "Premium Pile Height", summary: "Our fullest, softest lawn, with excellent durability for family use and high-end landscaping." },
+];
 
 const FEATURES = [
   { icon: PawPrint, title: "Pet-Friendly Options", desc: "Durable, easy-to-clean artificial grass ranges built to handle pets and heavy family use." },
@@ -41,7 +46,7 @@ export default function ArtificialGrass() {
               A Range to Suit Every Space
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }} className="pile-grid">
-              {PILE_HEIGHTS.map(h => (
+              {PILE_HEIGHTS.map(({ h, label, summary }) => (
                 <Link
                   key={h}
                   href={`/portfolio?category=lawn&pileHeight=${h}`}
@@ -58,7 +63,8 @@ export default function ArtificialGrass() {
                   </div>
                   <div style={{ padding: "16px 12px" }}>
                     <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 28, color: FOREST }}>{h}</div>
-                    <div style={{ fontSize: 12, color: STONE, marginTop: 4 }}>Pile Height</div>
+                    <div style={{ fontSize: 12, color: STONE, marginTop: 4 }}>{label}</div>
+                    <p style={{ fontSize: 13, lineHeight: 1.5, color: STONE, marginTop: 10, marginBottom: 0 }}>{summary}</p>
                   </div>
                 </Link>
               ))}
