@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { getSheetsClient, hasServiceAccountCredentials, resolveSpreadsheetId } from "./googleAuth";
+import { getSheetValues, hasServiceAccountCredentials } from "./googleAuth";
 import type { PortfolioEntry } from "../components/Portfolio";
 
 const VALID_TAGS = new Set(["lawn", "paving"]);
@@ -11,14 +11,8 @@ async function fetchPortfolioItems(): Promise<PortfolioEntry[] | null> {
   }
 
   try {
-    const sheets = getSheetsClient();
     const tab = process.env.GOOGLE_SHEETS_PORTFOLIO_SHEET_NAME || "Portfolio";
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId: resolveSpreadsheetId(),
-      range: `${tab}!A2:E500`,
-    });
-
-    const rows = res.data.values ?? [];
+    const rows = await getSheetValues(`${tab}!A2:E500`);
     const items: PortfolioEntry[] = [];
     rows.forEach((row, i) => {
       const [title, rawTag, image, rawPileHeight, rawPavingType] = row as (string | undefined)[];

@@ -1,15 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { Storage } from "@google-cloud/storage";
 import { generateQuotePdf } from "@/app/lib/quotePdf";
 import { sendQuoteEmail } from "@/app/lib/quoteEmail";
-import { getServiceAccountCredentials, getSheetsClient, resolveSpreadsheetId } from "@/app/lib/googleAuth";
+import { appendSheetRow, uploadToBucket } from "@/app/lib/googleAuth";
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
-
-function getStorage() {
-  return new Storage({ credentials: getServiceAccountCredentials(), projectId: process.env.GOOGLE_CLOUD_PROJECT_ID });
-}
 
 function sanitizeFilename(name: string) {
   return name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
@@ -22,11 +17,7 @@ function sanitizeFilename(name: string) {
 async function uploadPhoto(file: File): Promise<string> {
   const bucketName = process.env.GCS_BUCKET_NAME!;
   const key = `quotes/${Date.now()}-${randomUUID()}-${sanitizeFilename(file.name)}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await getStorage().bucket(bucketName).file(key).save(buffer, {
-    contentType: file.type || "application/octet-stream",
-    resumable: false,
-  });
+  await uploadToBucket(bucketName, key, await file.arrayBuffer(), file.type || "application/octet-stream");
   return `https://storage.googleapis.com/${bucketName}/${key}`;
 }
 
@@ -42,15 +33,8 @@ function formatDims(dimsJson: string) {
 }
 
 async function appendQuoteRow(row: (string | number)[]) {
-  const sheets = getSheetsClient();
   const tab = process.env.GOOGLE_SHEETS_SHEET_NAME || "Sheet1";
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: resolveSpreadsheetId(),
-    range: `${tab}!A:N`,
-    valueInputOption: "USER_ENTERED",
-    insertDataOption: "INSERT_ROWS",
-    requestBody: { values: [row] },
-  });
+  await appendSheetRow(`${tab}!A:N`, row);
 }
 
 export async function POST(request: Request) {
