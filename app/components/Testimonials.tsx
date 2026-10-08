@@ -1,8 +1,6 @@
-import { Star } from "lucide-react";
-import { FOREST, GRASS, CREAM, STONE, FONT_DISPLAY, FONT_BODY, BRAND } from "./theme";
+import { FOREST, GRASS, STONE, FONT_DISPLAY, FONT_BODY, BRAND } from "./theme";
+import ReviewCarousel, { type ReviewItem } from "./ReviewCarousel";
 import { getGoogleReviews } from "../lib/googleReviews";
-
-type ReviewItem = { name: string; stars: number; text: string; meta: string; avatarUrl?: string };
 
 const FALLBACK_TESTIMONIALS: ReviewItem[] = [
   {
@@ -24,16 +22,6 @@ const FALLBACK_TESTIMONIALS: ReviewItem[] = [
     meta: "Midrand · Brick Paving Patio",
   },
 ];
-
-function initials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(w => w[0])
-    .join("")
-    .toUpperCase();
-}
 
 export default async function Testimonials() {
   const googleReviews = await getGoogleReviews();
@@ -58,34 +46,7 @@ export default async function Testimonials() {
           </h2>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 28 }} className="testimonial-grid">
-          {items.map((t, i) => (
-            <div key={i} style={{ background: CREAM, borderRadius: 4, padding: "36px 32px", border: `1px solid rgba(42,74,25,0.08)` }}>
-              <div style={{ display: "flex", gap: 3, marginBottom: 20 }}>
-                {Array(t.stars).fill(null).map((_, j) => (
-                  <Star key={j} size={14} color={GRASS} fill={GRASS} />
-                ))}
-              </div>
-              <p style={{ fontFamily: FONT_DISPLAY, fontStyle: "italic", fontSize: 17, color: FOREST, lineHeight: 1.65, marginBottom: 28 }}>
-                &quot;{t.text}&quot;
-              </p>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, borderTop: `1px solid rgba(42,74,25,0.1)`, paddingTop: 20 }}>
-                {t.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={t.avatarUrl} alt={t.name} style={{ width: 40, height: 40, borderRadius: "50%", flexShrink: 0, objectFit: "cover" }} />
-                ) : (
-                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: FOREST, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <span style={{ fontFamily: FONT_BODY, fontWeight: 700, fontSize: 13, color: "#BFD98F" }}>{initials(t.name)}</span>
-                  </div>
-                )}
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 14, color: FOREST }}>{t.name}</div>
-                  <div style={{ fontSize: 12, color: STONE }}>{t.meta}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ReviewCarousel items={items} />
 
         {googleReviews && (
           <div style={{ textAlign: "center", marginTop: 32, fontSize: 12, color: STONE }}>
@@ -93,10 +54,6 @@ export default async function Testimonials() {
           </div>
         )}
       </div>
-      <style>{`
-        @media (max-width: 900px)  { .testimonial-grid { grid-template-columns: repeat(2, 1fr) !important; } }
-        @media (max-width: 600px)  { .testimonial-grid { grid-template-columns: 1fr !important; } }
-      `}</style>
     </section>
   );
 }

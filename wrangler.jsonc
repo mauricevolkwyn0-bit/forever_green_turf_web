@@ -5,10 +5,23 @@
   "name": "forever-green-turf-web",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Variables are managed in the Cloudflare dashboard (Settings → Variables
+  // and Secrets) — don't wipe them on each deploy.
+  "keep_vars": true,
+  // Keep Workers Logs on so runtime errors show under Observability.
+  "observability": { "enabled": true },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "kv_namespaces": [
+    {
+      // Incremental cache for ISR / `revalidate` — see open-next.config.ts.
+      // Namespace "forever-green-turf-web-cache" in the Cloudflare dashboard.
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "d613822e0e8340779be6f38a704a00b3"
+    }
+  ],
   "services": [
     {
       // Self-reference — the service name must match "name" above.
