@@ -373,9 +373,9 @@ export default function LandingPage({ testimonials, portfolio }: { testimonials:
       <FadeInSection><StatsBar /></FadeInSection>
       <FadeInSection><Services /></FadeInSection>
       <FadeInSection>{portfolio}</FadeInSection>
+      <FadeInSection>{testimonials}</FadeInSection>
       <FadeInSection><Process /></FadeInSection>
       <FadeInSection><FAQ /></FadeInSection>
-      <FadeInSection>{testimonials}</FadeInSection>
       <FadeInSection><Footer /></FadeInSection>
     </div>
   );
