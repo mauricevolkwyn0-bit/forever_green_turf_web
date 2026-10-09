@@ -365,14 +365,13 @@ function Process() {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function LandingPage({ testimonials, portfolio }: { testimonials: React.ReactNode; portfolio: React.ReactNode }) {
+export default function LandingPage({ testimonials }: { testimonials: React.ReactNode }) {
   return (
     <div style={{ fontFamily: FONT_BODY, overflowX: "hidden", overflowY: "hidden" }}>
       <Nav />
       <Hero />
       <FadeInSection><StatsBar /></FadeInSection>
       <FadeInSection><Services /></FadeInSection>
-      <FadeInSection>{portfolio}</FadeInSection>
       <FadeInSection>{testimonials}</FadeInSection>
       <FadeInSection><Process /></FadeInSection>
       <FadeInSection><FAQ /></FadeInSection>
